@@ -13,6 +13,7 @@ use OpenBSDTorrents;
 
 %ENV = ();
 
+
 use YAML;
 
 my $url_torrents = 'http://openbsd.somedomain.net/dumptorrents.php';
@@ -22,6 +23,7 @@ my $url_delete   = 'http://openbsd.somedomain.net/deltorrents.php';
 my $user = 'torrentup';
 my $pass = 'ssapword';
 
+my @Sizes = ('', 'Ki', 'Mi', 'Gi', 'Ti');
 my $ua = LWP::UserAgent->new;
 
 my $response = $ua->get($url_torrents);
@@ -121,13 +123,24 @@ sub Upload_Torrent
 		return undef;
 	}
 
+	my $size = $t->total_size;
+
+	my $i;
+	while ($size > 1024) {
+		$size /= 1024;
+		$i++;
+	}
+	$size = sprintf('%.2f', $size);
+	$size .= $Sizes[$i] . 'B';
+	
 	my $comment = $t->{comment};
 	$comment =~ s/\n.*$//s;
-
-	my ($filename) = $comment =~ /Files from ([^<]+)/;
+	
+	my ($filename) = $comment =~ /Files from (.+)/;
 	$filename =~ s#/# #g;
 	
-	$filename .= ' (' . $time . ')';
+	$comment  .= " [$size]";
+	$filename .= " [$time]";
 
 	my $response = $ua->post($url_upload, {
 		username => $user,
