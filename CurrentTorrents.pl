@@ -7,7 +7,7 @@ use diagnostics;
 use BT::MetaInfo;
 use Time::Local;
 
-use lib 'lib';
+use lib '/usr/local/bin/OpenBSDTorrents/lib';
 use OpenBSDTorrents;
 
 %ENV = ();
@@ -30,7 +30,7 @@ foreach (readdir DIR) {
 
 	my $epoch = timegm(0,$min,$hour,$mday,$mon,$year);
 
-	print "Adding $_\n";
+	#print "Adding $_\n";
 
 	$files{$name}{$epoch} = {
 		file      => $_,
@@ -65,12 +65,12 @@ foreach my $name (keys %files) {
 		my ($path) = $t->{comment} =~ /Files from ([^\n]+)\n/s;
 
 		unless (-d "$BaseDir/$path") {
-			print "Deleting $files{$name}{$epoch}{file} the path doesn't exist.\n"; 
+			#print "Deleting $files{$name}{$epoch}{file} the path doesn't exist.\n"; 
 			push @delete, $files{$name}{$epoch}{file};
 		}
 
 		if (keys %{ $files{$name} } == 1) {
-			print "Skipping torrent for $name there is only one.\n";
+			#print "Skipping torrent for $name there is only one.\n";
 			next;
 		}
 
