@@ -28,43 +28,68 @@ foreach (readdir DIR) {
 
 	my $epoch = timegm(0,$min,$hour,$mday,$mon,$year);
 
-        my $t = BT::MetaInfo->new("$TorrentDir/$_");
-	my $hash = $t->info_hash;
-	$hash = unpack("H*", $hash);
+	print "Adding $_\n";
 
 	$files{$name}{$epoch} = {
 		file      => $_,
-		comment   => $t->{comment},
 		year      => $year,
 		mon       => $mon,
 		mday      => $mday,
 		hour      => $hour,
 		min       => $min,
 		epoch     => $epoch,
-		info_hash => $hash,
 	};
 
 }
 closedir DIR;
 
-
 my %keep;
 my @delete;
 foreach my $name (keys %files) {
-	foreach my $time ( sort { $b <=> $a } keys %{ $files{$name} } ) {
-		#print "$name - $time\n";
-		my $hash = $files{$name}{$time}{info_hash};
+	#print "$name\n";
+
+	foreach my $epoch ( sort { $b <=> $a } keys %{ $files{$name} } ) {
+		#print "\t$epoch\n";
+		my $torrent = $files{$name}{$epoch}{file};
+
+		my $t;
+		eval { $t = BT::MetaInfo->new("$TorrentDir/$torrent"); };
+		if ($@) {
+			warn "Error reading torrent $torrent\n";
+			next;
+		}
+
+		$files{$name}{$epoch}{comment}   = $t->{comment};
+		my ($path) = $t->{comment} =~ /Files from ([^\n]+)\n/s;
+
+		unless (-d "$TorrentDir/$path") {
+			print "Deleting $files{$name}{$epoch}{file} the path doesn't exist.\n"; 
+			push @delete, $files{$name}{$epoch}{file};
+		}
+
+		if (keys %{ $files{$name} } == 1) {
+			print "Skipping torrent for $name there is only one.\n";
+			next;
+		}
+
+		my $hash = $t->info_hash;
+		$hash = unpack("H*", $hash);
+
+		$files{$name}{$epoch}{info_hash} = $hash;
+
+		undef $t;
+
 		if (exists $keep{$name}) {
 			if (exists $keep{$name}{$hash}) {
 				push @delete, $keep{$name}{$hash};
 				$keep{$name}{$hash} = 
-					$files{$name}{$time}{file};
+					$files{$name}{$epoch}{file};
 			} else {
-				push @delete, $files{$name}{$time}{file};
+				push @delete, $files{$name}{$epoch}{file};
 			}
 		} else { 
 			$keep{$name}{$hash} = 
-				$files{$name}{$time}{file};
+				$files{$name}{$epoch}{file};
 
 		}
 	}
