@@ -7,9 +7,13 @@ use diagnostics;
 use lib 'lib';
 use OpenBSDTorrents;
 
+use POSIX 'setsid';
+
 %ENV = ();
 
 use YAML;
+
+# *** This requires --log-format="%t [%p] %o %f %l" on the rsync command
 
 my $last_dir = '';
 while (<>) {
@@ -29,11 +33,35 @@ while (<>) {
 }
 StartTorrent($last_dir);
 
+sleep(90);
+
+StartTorrent('skip');
+
+
 sub StartTorrent
 {
 	my $dir = shift;
+	return undef unless $dir;
+
+	if ($dir ne 'skip') {
+		$dir = "$BaseName/$dir";
+	}
 
 	# This actually needs to be a sub that forks off 
 	# the generation of this, and the running of the update script.
 	print "MakeTorrents.pl $BaseName/$dir\n";
+
+	defined(my $pid = fork)	or die "Can't fork: $!";
+
+	return if $pid;
+
+	chdir $HomeDir		or die "Can't chdir to $HomeDir: $!";
+
+	setsid			or die "Can't start a new session: $!";
+	#open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
+	#open STDOUT, '>/dev/null'
+	#                        or die "Can't write /dev/null: $!";
+	#open STDERR, '>&STDOUT'	or die "Can't dup stdout: $!";
+
+	exec('/home/andrew/OpenBSDTorrents/regen.sh', "$dir");
 }
