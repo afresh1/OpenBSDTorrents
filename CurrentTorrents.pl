@@ -103,5 +103,5 @@ foreach my $name (keys %files) {
 
 foreach (@delete) {
 	print "Deleting '$_'\n";
-	unlink $OBT->{TORRENTDIR} . "/$_" or die "Couldn't unlink $_";
+	unlink $OBT->{DIR_TORRENT} . "/$_" or die "Couldn't unlink $_";
 }
