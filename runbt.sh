@@ -7,4 +7,4 @@ btlaunchmany.py \
     --saveas /home/ftp/pub/ --saveas_style 2 \
     /home/andrew/torrents/
 
-/home/andrew/OpenBSDTorrents/runbt.sh
+/home/andrew/OpenBSDTorrents/runbt.sh &
