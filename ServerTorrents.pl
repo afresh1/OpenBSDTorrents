@@ -55,13 +55,13 @@ if ($response->is_success) {
 my %files;
 opendir DIR, $TorrentDir or die "Couldn't opendir $TorrentDir: $!";
 foreach (readdir DIR) {
+	chomp;
 	if (/^([^\/]+)$/) {
 		$_ = $1;
 	} else {
 		die "Invalid character in $_: $!";
 	}
 	next unless /\.torrent$/;
-	chomp;
 	my ($name, $year, $mon, $mday, $hour, $min) = 
 	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
 
