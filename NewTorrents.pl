@@ -44,7 +44,7 @@ sub StartTorrent
 	return undef unless $dir;
 
 	if ($dir ne 'skip') {
-		$dir = "$BaseName/$dir";
+		$dir = $OBT->{BASENAME} . "/$dir";
 	} else {
 		$dir = '';
 	}
@@ -65,6 +65,6 @@ sub StartTorrent
 	##open STDERR, '>&STDOUT'	or die "Can't dup stdout: $!";
 
 	print "Making torrents for $dir\n";
-	exec($HomeDir . '/regen.sh' . " $dir &");
+	exec($OBT->{DIR_HOME} . '/regen.sh' . " $dir &");
 	#exec($HomeDir . '/regen.sh', "$dir");
 }
