@@ -15,4 +15,4 @@ btlaunchmany.py \
 echo -n `date` >> ${LOGFILE}
 echo '	Died . . . ' >> ${LOGFILE}
 
-/home/OpenBSDTorrents/OpenBSDTorrents/runbt.sh &
+/home/OpenBSDTorrents/runbt.sh &
