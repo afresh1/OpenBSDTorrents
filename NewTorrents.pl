@@ -33,7 +33,7 @@ while (<>) {
 }
 StartTorrent($last_dir);
 
-sleep(90);
+sleep(300);
 
 StartTorrent('skip');
 
@@ -45,11 +45,12 @@ sub StartTorrent
 
 	if ($dir ne 'skip') {
 		$dir = "$BaseName/$dir";
+	} else {
+		$dir = '';
 	}
 
 	# This actually needs to be a sub that forks off 
 	# the generation of this, and the running of the update script.
-	print "MakeTorrents.pl $BaseName/$dir\n";
 
 	defined(my $pid = fork)	or die "Can't fork: $!";
 
@@ -63,5 +64,6 @@ sub StartTorrent
 	#                        or die "Can't write /dev/null: $!";
 	#open STDERR, '>&STDOUT'	or die "Can't dup stdout: $!";
 
-	exec('/home/andrew/OpenBSDTorrents/regen.sh', "$dir");
+	print "Making torrents for $dir\n";
+	exec($HomeDir . '/regen.sh', "$dir");
 }
