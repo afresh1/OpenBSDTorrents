@@ -14,6 +14,8 @@ use OpenBSDTorrents;
 
 #use YAML;
 
+justme();
+
 my %files;
 opendir DIR, $TorrentDir or die "Couldn't opendir $TorrentDir: $!";
 foreach (readdir DIR) {
