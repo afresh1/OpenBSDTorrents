@@ -13,8 +13,9 @@ use OpenBSDTorrents;
 
 %ENV = ();
 
+#use YAML;
 
-use YAML;
+justme();
 
 my $url_torrents = 'http://openbsd.somedomain.net/dumptorrents.php';
 my $url_upload   = 'http://openbsd.somedomain.net/newtorrents.php';
