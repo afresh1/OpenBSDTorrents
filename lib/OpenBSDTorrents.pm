@@ -19,10 +19,10 @@ our @EXPORT = qw(
 	&Get_Files_and_Dirs
 );
 	
-our $BaseDir  = '/home/ftp/pub';
-our $TorrentDir   = '/home/andrew/torrents';
-our $BaseName = 'OpenBSD';
-our $Tracker  = 'http://OpenBSD.somedomain.net/announce.php';
+our $BaseDir    = '/home/ftp/pub';
+our $TorrentDir = '/home/andrew/torrents';
+our $BaseName   = 'OpenBSD';
+our $Tracker    = 'http://OpenBSD.somedomain.net/announce.php';
 
 # These are regexes that tell what files to skip;
 our $SkipDirs  = qr/\/patches$/;
