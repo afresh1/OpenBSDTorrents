@@ -7,7 +7,7 @@ use diagnostics;
 use BT::MetaInfo;
 use Time::Local;
 
-use lib '/usr/local/bin/OpenBSDTorrents/lib';
+use lib 'lib';
 use OpenBSDTorrents;
 
 %ENV = ();
