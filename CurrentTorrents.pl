@@ -62,7 +62,7 @@ foreach my $name (keys %files) {
 		$files{$name}{$epoch}{comment}   = $t->{comment};
 		my ($path) = $t->{comment} =~ /Files from ([^\n]+)\n/s;
 
-		unless (-d "$TorrentDir/$path") {
+		unless (-d "$BaseDir/$path") {
 			print "Deleting $files{$name}{$epoch}{file} the path doesn't exist.\n"; 
 			push @delete, $files{$name}{$epoch}{file};
 		}
