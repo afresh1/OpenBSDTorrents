@@ -47,7 +47,7 @@ sub Get_Files_and_Dirs
 {
 	my $basedir = shift;
 	opendir DIR, $basedir or die "Couldn't opendir $basedir: $!";
-	my @contents = grep { ! /^\.\.$/ } grep { ! /^\.$/ } readdir DIR;
+	my @contents = sort grep { ! /^\.\.$/ } grep { ! /^\.$/ } readdir DIR;
 	closedir DIR;
 	my @dirs  = grep { -d "$basedir/$_" } @contents;
 
