@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use diagnostics;
 
+use BT::MetaInfo;
+
 use lib 'lib';
 use OpenBSDTorrents;
 
@@ -12,6 +14,7 @@ use OpenBSDTorrents;
 use YAML;
 
 my $BTMake   = '/usr/local/bin/btmake';
+my $Piece_Length = 18;
 my $MinFiles = 5;
 
 my $StartDir = shift || $BaseName;
@@ -72,15 +75,53 @@ sub Make_Torrent
                       "Created by andrew fresh (andrew\@mad-techies.org)\n" .
                       "http://OpenBSD.somedomain.net/";
 
-        system($BTMake,
-               '-C',
-               '-c', $comment,
-               '-n', $BaseName,
-               '-o', "$TorrentDir/$torrent",
-               '-a', $Tracker,
-               @$files
-        );# || die "Couldn't system $BTMake $torrent: $!";
+	btmake($torrent, $comment, $files);
+
+#        system($BTMake,
+#               '-C',
+#               '-c', $comment,
+#               '-n', $BaseName,
+#               '-o', "$TorrentDir/$torrent",
+#               '-a', $Tracker,
+#               @$files
+#        );# || die "Couldn't system $BTMake $torrent: $!";
 
         return $torrent;
+}
+
+
+# Stole and modified from btmake to work for this.
+sub btmake {
+    no locale;
+
+    my $torrent = shift;
+    my $comment = shift;
+    my $files = shift;
+
+    my $name = $BaseName;
+    my $announce = $Tracker;
+    my $piece_len = 2 << ($Piece_Length - 1);
+
+    $torrent = "$TorrentDir/$torrent";
+
+    my $t = BT::MetaInfo->new();
+    $t->name($name);
+    $t->announce($announce);
+    unless ($announce =~ m!^http://[^/]+/!i) {
+        warn "  [ WARNING: announce URL does not look like: http://hostname/ ]\n";
+    }
+    $t->comment($comment);
+    #foreach my $pair (split(/;/, $::opt_f)) {
+    #    if (my($key, $val) = split(/,/, $pair, 2)) {
+    #        $t->set($key, $val);
+    #    }
+    #}
+    $t->piece_length($piece_len);
+    $t->creation_date(time);
+    warn "Checksumming files. This may take a little while...\n";
+    $t->set_files(@$files);
+    $t->save("$torrent");
+    print "Created: $torrent\n";
+    #system("btinfo $torrent") if ($::opt_I);
 }
 
