@@ -20,12 +20,20 @@ while (<>) {
 		my ($dir, $file) = $file =~ m#^(.*)/([^/]+)#;
 		#print "$dir - $file\n";
 		if ($last_dir && $last_dir ne $dir) {
-			# This actually needs to be a sub that forks off 
-			# the generation of this, and the running of the update script.
-			print "MakeTorrent.pl $BaseName/$dir\n";
+			StartTorrent($last_dir);
 		}
 		$last_dir = $dir;
 	} else {
 		#print $_;
 	}
+}
+StartTorrent($last_dir);
+
+sub StartTorrent
+{
+	my $dir = shift;
+
+	# This actually needs to be a sub that forks off 
+	# the generation of this, and the running of the update script.
+	print "MakeTorrents.pl $BaseName/$dir\n";
 }
