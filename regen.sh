@@ -1,7 +1,7 @@
 #!/bin/sh
+#$Id$
 
 BASEDIR=/home/OpenBSDTorrents
-TORRENTDIR=/home/torrentsync/torrents
 
 cd ${BASEDIR}
 
@@ -15,7 +15,7 @@ ${BASEDIR}/CurrentTorrents.pl
 
 if [ $? != 253 ]; then
 	echo lftp -f ${BASEDIR}/lftp.script
-	lftp -f ${TORRENTDIR}/lftp.script
+	lftp -f ${BASEDIR}/lftp.script
 
 	echo ${BASEDIR}/ServerTorrents.pl
 	${BASEDIR}/ServerTorrents.pl
