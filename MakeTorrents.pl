@@ -14,9 +14,12 @@ my $OutDir   = '/home/andrew/torrents';
 my $BTMake   = '/usr/local/bin/btmake';
 my $Tracker  = 'http://OpenBSD.somedomain.net/announce.php';
 
+my $MinFiles = 5;
+
 # These are regexes that tell what files to skip;
-my $SkipDirs;
+my $SkipDirs  = qr/\/patches$/;
 my $SkipFiles = qr/^\./;
+
 
 my $StartDir = shift || $BaseName;
 $StartDir =~ s#/$##;
@@ -33,6 +36,10 @@ sub Process_Dir
 	if (@$files) {
 		Make_Torrent($basedir, $files);
 	}
+
+	# don't recurse if we were called on a specific directory
+	return 1 if $StartDir ne $BaseName;
+
 	foreach my $subdir (@$dirs) {
 		#next if $subdir eq '.';
 		#next if $subdir eq '..';
@@ -45,7 +52,12 @@ sub Make_Torrent
 	my $basedir = shift;
 	my $files   = shift;
 
-	if ($basedir =~ /^([\w\/\.-]+)$/) {
+	if ($#files < $MinFiles) {
+		print "Too few files in $basedir, skipping . . .\n";
+		return undef;
+	}
+
+	if ($basedir !~ /\.\./ && $basedir =~ /^([\w\/\.-]+)$/) {
 		$basedir = $1;
 	} else {
 		die "Invalid characters in dir '$basedir'";
@@ -59,24 +71,30 @@ sub Make_Torrent
 		}
 	}
 
+	my $date = Torrent_Date();
+
 	my $torrent = $basedir;
 	$torrent =~ s/\W/_/g;
-	$torrent .= '-' . Torrent_Date();
+	$torrent .= '-' . $date;
 	$torrent .= '.torrent';
 
-	print Dump $torrent, $basedir, $files;
+	#print Dump $torrent, $basedir, $files;
 	print "Creating $torrent\n";
+
+	my $comment = "Files from $basedir\n" .
+	              "Created by andrew fresh (andrew\@mad-techies.org)\n" . 
+	              "http://OpenBSD.somedomain.net/",
 
 	system($BTMake, 
 	       '-C',
-	       '-c', "Created by andrew fresh <andrew\@mad-techies.org>\n" . 
-	             "See http://OpenBSD.somedomain.net/",
+	       '-c', $comment,
 	       '-n', $BaseName,
 	       '-o', "$OutDir/$torrent",
 	       '-a', $Tracker,
 	       @$files
 	);# || die "Couldn't system $BTMake $torrent: $!";
 }
+
 
 sub Get_Files_and_Dirs
 {
