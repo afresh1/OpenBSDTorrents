@@ -94,7 +94,7 @@ sub justme {
 		die "Couldn't figure out myname";
 	}
 
-	my $SEMA = "$HomeDir/$myname.pid";
+	my $SEMA = "$HomeDir/run/$myname.pid";
         if (open SEMA, "<", $SEMA) {
                 my $pid = <SEMA>;
                 if (defined $pid) {
