@@ -17,18 +17,10 @@ use OpenBSDTorrents;
 
 justme();
 
-my $url_torrents = 'http://openbsd.somedomain.net/dumptorrents.php';
-my $url_upload   = 'http://openbsd.somedomain.net/newtorrents.php';
-my $url_delete   = 'http://openbsd.somedomain.net/deltorrents.php';
-my $url_sanity   = 'http://openbsd.somedomain.net/sanity.php';
-
-my $user = 'torrentup';
-my $pass = 'ssapword';
-
 my @Sizes = ('', 'Ki', 'Mi', 'Gi', 'Ti');
 my $ua = LWP::UserAgent->new;
 
-my $response = $ua->get($url_torrents);
+my $response = $ua->get($OBT->{URL_TORRENTS});
 
 my %server_torrents;
 if ($response->is_success) {
@@ -53,7 +45,7 @@ if ($response->is_success) {
 
 
 my %files;
-opendir DIR, $TorrentDir or die "Couldn't opendir $TorrentDir: $!";
+opendir DIR, $OBT->{DIR_TORRENT} or die "Couldn't opendir $OBT->{DIR_TORRENT}: $!";
 foreach (readdir DIR) {
 	chomp;
 	if (/^([^\/]+)$/) {
@@ -115,7 +107,7 @@ foreach my $file (keys %server_torrents) {
 	}
 }
 
-$ua->get($url_sanity);
+$ua->get($OBT->{URL_SANITY});
 
 sub Upload_Torrent
 {
@@ -125,7 +117,7 @@ sub Upload_Torrent
 	print "Uploading $file\n";
 
 	my $t;
-	eval { $t = BT::MetaInfo->new("$TorrentDir/$file"); };
+	eval { $t = BT::MetaInfo->new("$OBT->{DIR_TORRENT}/$file"); };
 	if ($@) {
 		warn "Error reading torrent $file\n";
 		return undef;
@@ -150,10 +142,10 @@ sub Upload_Torrent
 	$comment  .= " [$size]";
 	$filename .= " [$time]";
 
-	my $response = $ua->post($url_upload, {
-		username => $user,
-		password => $pass,
-		torrent  => [ "$TorrentDir/$file" ],
+	my $response = $ua->post($OBT->{URL_UPLOAD}, {
+		username => $OBT->{UPLOAD_USER},
+		password => $OBT->{UPLOAD_PASS},
+		torrent  => [ $OBT->{DIR_TORRENT} . "/$file" ],
 		url      => "/torrents/$file",
 		filename => $filename,
 		filedate => $time,
