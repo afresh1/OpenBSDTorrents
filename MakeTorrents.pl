@@ -13,7 +13,6 @@ use OpenBSDTorrents;
 
 use YAML;
 
-my $BTMake   = '/usr/local/bin/btmake';
 my $Piece_Length = 18;
 my $MinFiles = 5;
 
