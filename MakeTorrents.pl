@@ -11,14 +11,20 @@ use OpenBSDTorrents;
 
 %ENV = ();
 
-use YAML;
-
-my $StartDir = shift || $OBT->{BASENAME};
-$StartDir =~ s#/$##;
-
 chdir($OBT->{DIR_FTP}) || die "Couldn't change dir to " . $OBT->{DIR_FTP} . ": $!";
 
-Process_Dir($StartDir);
+my $StartDir = '';
+if (@ARGV) {
+	foreach (@ARGV) {
+		s#/$##;
+		Process_Dir($_);
+	}
+} else {
+	$StartDir = $OBT->{BASENAME};
+	Process_Dir($StartDir);
+}
+
+
 
 sub Process_Dir
 {
