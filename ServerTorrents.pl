@@ -65,6 +65,8 @@ foreach (readdir DIR) {
 	my ($name, $year, $mon, $mday, $hour, $min) = 
 	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
 
+	$mon--;
+
 	my $epoch = timegm(0,$min,$hour,$mday,$mon,$year);
 
 	$files{$name}{$epoch} = {
