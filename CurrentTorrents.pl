@@ -17,7 +17,8 @@ use OpenBSDTorrents;
 justme();
 
 my %files;
-opendir DIR, $TorrentDir or die "Couldn't opendir $TorrentDir: $!";
+opendir DIR, $OBT->{DIR_TORRENT} 
+	or die "Couldn't opendir $OBT->{DIR_TORRENT}: $!";
 foreach (readdir DIR) {
 	if (/^([^\/]+)$/) {
 		$_ = $1;
@@ -56,7 +57,7 @@ foreach my $name (keys %files) {
 		my $torrent = $files{$name}{$epoch}{file};
 
 		my $t;
-		eval { $t = BT::MetaInfo->new("$TorrentDir/$torrent"); };
+		eval { $t = BT::MetaInfo->new($OBT->{DIR_TORRENT} . "/$torrent"); };
 		if ($@) {
 			warn "Error reading torrent $torrent\n";
 			next;
@@ -65,7 +66,7 @@ foreach my $name (keys %files) {
 		$files{$name}{$epoch}{comment}   = $t->{comment};
 		my ($path) = $t->{comment} =~ /Files from ([^\n]+)\n/s;
 
-		unless (-d "$BaseDir/$path") {
+		unless (-d $OBT->{DIR_FTP} . "/$path") {
 			#print "Deleting $files{$name}{$epoch}{file} the path doesn't exist.\n"; 
 			push @delete, $files{$name}{$epoch}{file};
 		}
@@ -102,5 +103,5 @@ foreach my $name (keys %files) {
 
 foreach (@delete) {
 	print "Deleting '$_'\n";
-	unlink "$TorrentDir/$_" or die "Couldn't unlink $_";
+	unlink $OBT->{TORRENTDIR} . "/$_" or die "Couldn't unlink $_";
 }
