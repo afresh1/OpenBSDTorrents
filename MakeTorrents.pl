@@ -13,15 +13,10 @@ use OpenBSDTorrents;
 
 use YAML;
 
-my $Piece_Length = 18;
-
-my $MinFiles = 5;
-my $MinSize  = 50 * 1024 * 1024; # 50 MiB
-
-my $StartDir = shift || $BaseName;
+my $StartDir = shift || $OBT->{BASENAME};
 $StartDir =~ s#/$##;
 
-chdir($BaseDir) || die "Couldn't change dir to $BaseDir";
+chdir($OBT->{DIR_FTP}) || die "Couldn't change dir to " . $OBT->{DIR_FTP} . ": $!";
 
 Process_Dir($StartDir);
 
@@ -35,7 +30,7 @@ sub Process_Dir
 	}
 
 	# don't recurse if we were called on a specific directory
-	return 1 if $StartDir ne $BaseName;
+	return 1 if $StartDir ne $OBT->{BASENAME};
 
 	foreach my $subdir (@$dirs) {
 		next if $subdir eq '.';
@@ -49,7 +44,7 @@ sub Make_Torrent
         my $basedir = shift;
         my $files   = shift;
 
-        if ($#{ $files } < $MinFiles) {
+        if ($#{ $files } < $OBT->{MIN_FILES}) {
                 print "Too few files in $basedir, skipping . . .\n";
                 return undef;
         }
@@ -84,8 +79,8 @@ sub Make_Torrent
 #        system($BTMake,
 #               '-C',
 #               '-c', $comment,
-#               '-n', $BaseName,
-#               '-o', "$TorrentDir/$torrent",
+#               '-n', $OBT->{BASENAME},
+#               '-o', $OBT->{DIR_TORRENT} . "/$torrent",
 #               '-a', $Tracker,
 #               @$files
 #        );# || die "Couldn't system $BTMake $torrent: $!";
@@ -102,11 +97,11 @@ sub btmake {
     my $comment = shift;
     my $files = shift;
 
-    my $name = $BaseName;
-    my $announce = $Tracker;
-    my $piece_len = 2 << ($Piece_Length - 1);
+    my $name = $OBT->{BASENAME};
+    my $announce = $OBT->{URL_TRACKER};
+    my $piece_len = 2 << ($OBT->{PIECE_LENGTH} - 1);
 
-    $torrent = "$TorrentDir/$torrent";
+    $torrent = $OBT->{DIR_TORRENT} . "/$torrent";
 
     my $t = BT::MetaInfo->new();
     $t->name($name);
@@ -125,7 +120,7 @@ sub btmake {
     print "Checksumming files. This may take a little while...\n";
     $t->set_files(@$files);
 
-    if ($t->total_size < $MinSize) {
+    if ($t->total_size < $OBT->{MIN_SIZE}) {
         print "Skipping smaller than minimum size\n";
         return 0;
     }
