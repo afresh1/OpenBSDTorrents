@@ -12,14 +12,17 @@ our $VERSION = '0.01';
 
 our @EXPORT = qw(
 	$BaseDir
+	$HomeDir
 	$TorrentDir
 	$BaseName
 	$Tracker
 	&Name_Torrent
 	&Get_Files_and_Dirs
+	&justme
 );
 	
 our $BaseDir    = '/home/ftp/pub';
+our $HomeDir    = '/home/andrew/OpenBSDTorrents';
 our $TorrentDir = '/home/andrew/torrents';
 our $BaseName   = 'OpenBSD';
 our $Tracker    = 'http://OpenBSD.somedomain.net/announce.php';
@@ -79,6 +82,40 @@ sub Torrent_Date
 	}
 	return join '-', ($year, $mon, $mday, $hour . $min);
 }
+
+# "There can be only one."  --the Highlander
+sub justme {
+
+	my $myname;
+
+	if ($0 =~ m#([^/]+$)#) {
+		$myname = $1;
+	} else {
+		die "Couldn't figure out myname";
+	}
+
+	my $SEMA = "$HomeDir/$myname.pid";
+        if (open SEMA, "<", $SEMA) {
+                my $pid = <SEMA>;
+                if (defined $pid) {
+                        chomp $pid;
+			if ($pid =~ /^(\d+)$/) {
+				$pid = $1;
+			} else { 
+				die "invalid pid read '$pid'";
+			}
+                        if (kill(0, $pid)) {
+                              print "$0 already running (pid $pid), bailing out\n";
+                              exit 253;
+                        }
+                }
+                close SEMA;
+        }
+        open (SEMA, ">", $SEMA)      or die "can't write $SEMA: $!";
+        print SEMA "$$\n";
+        close(SEMA)                    or die "can't close $SEMA: $!";
+}
+
 
 1;
 __END__
