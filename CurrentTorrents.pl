@@ -73,5 +73,6 @@ foreach my $name (keys %files) {
 #print Dump \%files, \%keep, \@delete;
 
 foreach (@delete) {
+	print "Deleting '$_'\n";
 	unlink "$TorrentDir/$_" or die "Couldn't unlink $_";
 }
