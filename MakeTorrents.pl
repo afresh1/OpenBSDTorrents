@@ -122,7 +122,7 @@ sub btmake {
     #}
     $t->piece_length($piece_len);
     $t->creation_date(time);
-    warn "Checksumming files. This may take a little while...\n";
+    print "Checksumming files. This may take a little while...\n";
     $t->set_files(@$files);
 
     if ($t->total_size < $MinSize) {
