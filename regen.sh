@@ -1,22 +1,22 @@
 #!/bin/sh
 #$Id$
 
-BASEDIR=/home/OpenBSDTorrents
+. /etc/OpenBSDTorrents.conf
 
-cd ${BASEDIR}
+cd ${OBT_DIR_HOME}
 
 if [[ $1 != skip ]]; then
-	echo ${BASEDIR}/MakeTorrents.pl $*
-	${BASEDIR}/MakeTorrents.pl $*
+	echo ${OBT_DIR_HOME}/MakeTorrents.pl $*
+	${OBT_DIR_HOME}/MakeTorrents.pl $*
 fi
 
-echo ${BASEDIR}/CurrentTorrents.pl
-${BASEDIR}/CurrentTorrents.pl
+echo ${OBT_DIR_HOME}/CurrentTorrents.pl
+${OBT_DIR_HOME}/CurrentTorrents.pl
 
 if [ $? != 253 ]; then
-	echo lftp -f ${BASEDIR}/lftp.script
-	lftp -f ${BASEDIR}/lftp.script
+	echo lftp -f ${OBT_DIR_HOME}/lftp.script
+	lftp -f ${OBT_DIR_HOME}/lftp.script
 
-	echo ${BASEDIR}/ServerTorrents.pl
-	${BASEDIR}/ServerTorrents.pl
+	echo ${OBT_DIR_HOME}/ServerTorrents.pl
+	${OBT_DIR_HOME}/ServerTorrents.pl
 fi
