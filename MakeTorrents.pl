@@ -14,7 +14,9 @@ use OpenBSDTorrents;
 use YAML;
 
 my $Piece_Length = 18;
+
 my $MinFiles = 5;
+my $MinSize  = 50 * 1024 * 1024; # 50 MiB
 
 my $StartDir = shift || $BaseName;
 $StartDir =~ s#/$##;
@@ -122,6 +124,12 @@ sub btmake {
     $t->creation_date(time);
     warn "Checksumming files. This may take a little while...\n";
     $t->set_files(@$files);
+
+    if ($t->total_size < $MinSize) {
+        print "Skipping smaller than minimum size\n";
+        return 0;
+    }
+
     $t->save("$torrent");
     print "Created: $torrent\n";
     #system("btinfo $torrent") if ($::opt_I);
