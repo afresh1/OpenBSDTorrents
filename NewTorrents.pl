@@ -52,18 +52,19 @@ sub StartTorrent
 	# This actually needs to be a sub that forks off 
 	# the generation of this, and the running of the update script.
 
-	defined(my $pid = fork)	or die "Can't fork: $!";
+	#defined(my $pid = fork)	or die "Can't fork: $!";
 
-	return if $pid;
+	#return if $pid;
 
-	chdir $HomeDir		or die "Can't chdir to $HomeDir: $!";
+	#chdir $HomeDir		or die "Can't chdir to $HomeDir: $!";
 
-	setsid			or die "Can't start a new session: $!";
-	#open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
-	#open STDOUT, '>/dev/null'
-	#                        or die "Can't write /dev/null: $!";
-	#open STDERR, '>&STDOUT'	or die "Can't dup stdout: $!";
+	#setsid			or die "Can't start a new session: $!";
+	##open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
+	##open STDOUT, '>/dev/null'
+	##                        or die "Can't write /dev/null: $!";
+	##open STDERR, '>&STDOUT'	or die "Can't dup stdout: $!";
 
 	print "Making torrents for $dir\n";
-	exec($HomeDir . '/regen.sh', "$dir");
+	exec($HomeDir . '/regen.sh' . " $dir &");
+	#exec($HomeDir . '/regen.sh', "$dir");
 }
