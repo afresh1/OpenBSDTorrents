@@ -98,7 +98,10 @@ foreach my $name (keys %files) {
 }
 
 foreach my $file (keys %server_torrents) {
-	unless (exists $files{$file}) {
+	my ($name, $year, $mon, $mday, $hour, $min) = 
+	   $file =~
+	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
+	unless (exists $files{$name}) {
 		Delete_Torrent($file);
 	}
 }
