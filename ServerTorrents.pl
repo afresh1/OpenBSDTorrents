@@ -158,7 +158,7 @@ sub Upload_Torrent
 	}, Content_Type => 'form-data');
 
 	if ($response->is_success) {
-		print "Uploaded  $file\n";
+		print STDERR "Uploaded  $file\n";
 		#print $response->content;
 	} else {
     		die $response->status_line;
