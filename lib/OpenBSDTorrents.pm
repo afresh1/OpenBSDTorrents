@@ -22,8 +22,8 @@ our @EXPORT = qw(
 );
 	
 our $BaseDir    = '/home/ftp/pub';
-our $HomeDir    = '/home/andrew/OpenBSDTorrents';
-our $TorrentDir = '/home/andrew/torrents';
+our $HomeDir    = '/home/OpenBSDTorrents';
+our $TorrentDir = '/home/torrentsync/torrents';
 our $BaseName   = 'OpenBSD';
 our $Tracker    = 'http://OpenBSD.somedomain.net/announce.php';
 
