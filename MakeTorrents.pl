@@ -74,7 +74,10 @@ sub Make_Torrent
                       "Created by andrew fresh (andrew\@mad-techies.org)\n" .
                       "http://OpenBSD.somedomain.net/";
 
-	btmake($torrent, $comment, $files);
+	eval { btmake($torrent, $comment, $files); };
+	if ($@) {
+		print "Error creating $torrent\n";
+	}
 
 #        system($BTMake,
 #               '-C',
