@@ -1,4 +1,5 @@
 #!/usr/bin/perl -T
+#$Id$
 use strict;
 use warnings;
 use diagnostics;
@@ -9,7 +10,7 @@ use YAML;
 
 my $BaseDir  = '/home/ftp/pub';
 my $BaseName = 'OpenBSD';
-my $OutDir   = '/home/andrew';
+my $OutDir   = '/home/andrew/torrents';
 my $BTMake   = '/usr/local/bin/btmake';
 my $Tracker  = 'http://OpenBSD.somedomain.net/announce.php';
 
@@ -51,7 +52,7 @@ sub Make_Torrent
 	}
 
 	foreach (@$files) {
-		if (/^([\w\.-]+)$/) {
+		if (/^([^\/]+)$/) {
 			$_ = "$basedir/$1";
 		} else {
 			die "Invalid characters in file '$_' in '$basedir'";
@@ -67,6 +68,9 @@ sub Make_Torrent
 	print "Creating $torrent\n";
 
 	system($BTMake, 
+	       '-C',
+	       '-c', "Created by andrew fresh <andrew\@mad-techies.org>\n" . 
+	             "See http://OpenBSD.somedomain.net/",
 	       '-n', $BaseName,
 	       '-o', "$OutDir/$torrent",
 	       '-a', $Tracker,
