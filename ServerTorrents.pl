@@ -65,6 +65,8 @@ foreach (readdir DIR) {
 	my ($name, $year, $mon, $mday, $hour, $min) = 
 	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
 
+	my $time = "$year.$mon.$mday $hour:$min";
+
 	$mon--;
 
 	my $epoch = timegm(0,$min,$hour,$mday,$mon,$year);
@@ -76,6 +78,7 @@ foreach (readdir DIR) {
 		mday      => $mday,
 		hour      => $hour,
 		min       => $min,
+		time      => $time,
 		epoch     => $epoch,
 	};
 
@@ -90,14 +93,14 @@ foreach my $name (keys %files) {
 		#print "\t$epoch\n";
 		my $torrent = $files{$name}{$epoch}{file};
 		unless (exists $server_torrents{$torrent} ) {
-			my $time = 
-				$files{$name}{$epoch}{year} . '-' . 
-				$files{$name}{$epoch}{mon}  . '-' . 
-				$files{$name}{$epoch}{mday} . ' ' .
-				$files{$name}{$epoch}{hour} . ':' .
-				$files{$name}{$epoch}{min}  . ':00';
+			#my $time = 
+			#	$files{$name}{$epoch}{year} . '-' . 
+			#	$files{$name}{$epoch}{mon}  . '-' . 
+			#	$files{$name}{$epoch}{mday} . ' ' .
+			#	$files{$name}{$epoch}{hour} . ':' .
+			#	$files{$name}{$epoch}{min}  . ':00';
 				
-			Upload_Torrent($torrent, $time);
+			Upload_Torrent($torrent, $files{$name}{$epoch}{time});
 		}
 		next;
 	}
