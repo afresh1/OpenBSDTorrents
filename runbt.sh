@@ -4,7 +4,7 @@
 LOGFILE=runbt.log
 
 echo -n `date` >> ${LOGFILE}
-echo 	Starting . . .  >> ${LOGFILE}
+echo '	Starting . . . ' >> ${LOGFILE}
 
 btlaunchmany.py \
     --super_seeder 1 \
@@ -13,6 +13,6 @@ btlaunchmany.py \
     /home/torrentsync/torrents/ > /dev/null
 
 echo -n `date` >> ${LOGFILE}
-echo 	Died . . .  >> ${LOGFILE}
+echo '	Died . . . ' >> ${LOGFILE}
 
 /home/OpenBSDTorrents/OpenBSDTorrents/runbt.sh &
