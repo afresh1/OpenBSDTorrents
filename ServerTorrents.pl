@@ -19,6 +19,7 @@ use YAML;
 my $url_torrents = 'http://openbsd.somedomain.net/dumptorrents.php';
 my $url_upload   = 'http://openbsd.somedomain.net/newtorrents.php';
 my $url_delete   = 'http://openbsd.somedomain.net/deltorrents.php';
+my $url_sanity   = 'http://openbsd.somedomain.net/sanity.php';
 
 my $user = 'torrentup';
 my $pass = 'ssapword';
@@ -108,6 +109,7 @@ foreach my $file (keys %server_torrents) {
 	}
 }
 
+$ua->get($url_sanity);
 
 sub Upload_Torrent
 {
