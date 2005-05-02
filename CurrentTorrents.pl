@@ -16,6 +16,13 @@ use OpenBSDTorrents;
 
 justme();
 
+my $Name_Filter = shift || '';
+if ($Name_Filter =~ /^(\w*)$/) {
+	$Name_Filter = $1;
+} else {
+	die "Invalid filter: $Name_Filter";
+}
+
 my %files;
 opendir DIR, $OBT->{DIR_TORRENT} 
 	or die "Couldn't opendir $OBT->{DIR_TORRENT}: $!";
@@ -50,7 +57,8 @@ closedir DIR;
 my %keep;
 my @delete;
 foreach my $name (keys %files) {
-	#print "$name\n";
+	next unless $name =~ /^$Name_Filter/;
+	print "Checking $name\n";
 
 	foreach my $epoch ( sort { $b <=> $a } keys %{ $files{$name} } ) {
 		#print "\t$epoch\n";
