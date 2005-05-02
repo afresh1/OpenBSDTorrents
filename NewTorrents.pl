@@ -7,7 +7,11 @@ use diagnostics;
 use lib 'lib';
 use OpenBSDTorrents;
 
-use POSIX 'setsid';
+use POSIX qw / setsid :sys_wait_h /;
+$SIG{CHLD} = \&REAPER;
+my %Kids;
+my %Kid_Status;
+my %Need_Update;
 
 %ENV = ();
 
@@ -31,40 +35,64 @@ while (<>) {
 		#print $_;
 	}
 }
+
+# Regen just the new ones now
+sleep(1) while (keys %Kids > 0);
 StartTorrent($last_dir);
 
-sleep(300);
-
+# after the new ones are done, regen all, just to make sure
+sleep(1) while (keys %Kids > 0);
 StartTorrent('skip');
 
+sub REAPER {
+	my $child;
+        while (($child = waitpid(-1,WNOHANG)) > 0) {
+		$Kid_Status{$child} = $?;
+		delete $Kids{$child};
+	}
+	$SIG{CHLD} = \&REAPER;  # still loathe sysV
+}
 
 sub StartTorrent
 {
 	my $dir = shift;
 	return undef unless $dir;
 
-	if ($dir ne 'skip') {
-		$dir = $OBT->{BASENAME} . "/$dir";
-	} else {
+	my $should_fork = 1;
+
+	if ($dir eq 'skip') {
 		$dir = '';
+		%Need_Update = ();
+		$should_fork = 0;
+	} else {
+		$dir = $OBT->{BASENAME} . "/$dir";
+		$Need_Update{$dir} = 1;
 	}
 
-	# This actually needs to be a sub that forks off 
-	# the generation of this, and the running of the update script.
+	if (keys %Kids > 0) {
+		print "Not making torrents for $dir now, already running\n";
+		return undef;
+	}
 
-	#defined(my $pid = fork)	or die "Can't fork: $!";
+	my @now_update = keys %Need_Update;
+	%Need_Update = ();
 
-	#return if $pid;
+	if ($should_fork) {
+		defined(my $pid = fork)	or die "Can't fork: $!";
 
-	#chdir $HomeDir		or die "Can't chdir to $HomeDir: $!";
+		if ($pid) {
+			$Kids{$pid} = 1;
+			return undef;
+		}
 
-	#setsid			or die "Can't start a new session: $!";
-	##open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
-	##open STDOUT, '>/dev/null'
-	##                        or die "Can't write /dev/null: $!";
-	##open STDERR, '>&STDOUT'	or die "Can't dup stdout: $!";
+	}
 
-	print "Making torrents for $dir\n";
-	exec($OBT->{DIR_HOME} . '/regen.sh' . " $dir &");
-	#exec($HomeDir . '/regen.sh', "$dir");
+	chdir $OBT->{DIR_HOME} or die "Can't chdir to $OBT->{DIR_HOME}: $!";
+
+	if (@now_update) {
+		print "Making torrents for ", join(" ", @now_update), "\n";
+	} else {
+		print "Remaking all torrents\n";
+	}
+	exec($OBT->{DIR_HOME} . '/regen.sh', @now_update);
 }
