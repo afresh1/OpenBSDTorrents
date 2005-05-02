@@ -4,12 +4,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use BT::OBTMetaInfo;
 use LWP::UserAgent;
 use Time::Local;
 
 use lib 'lib';
 use OpenBSDTorrents;
+use BT::OBTMetaInfo;
 
 %ENV = ();
 
