@@ -4,9 +4,8 @@ use strict;
 use warnings;
 use diagnostics;
 
-use BT::MetaInfo;
-
 use lib 'lib';
+use BT::OBTMetaInfo;
 use OpenBSDTorrents;
 
 %ENV = ();
@@ -30,12 +29,14 @@ sub Process_Dir
 {
 	my $basedir = shift;
 
+	return undef if $basedir =~ /packages/;
+
 	my ($dirs, $files) = Get_Files_and_Dirs($basedir);
 	if (@$files) {
 		my $torrent = Make_Torrent($basedir, $files);
 	}
 
-	# don't recurse if we were called on a specific directory
+	# don't recurse if we were started with a specific directory
 	return 1 if $StartDir ne $OBT->{BASENAME};
 
 	foreach my $subdir (@$dirs) {
@@ -79,7 +80,7 @@ sub Make_Torrent
 
 	eval { btmake($torrent, $comment, $files); };
 	if ($@) {
-		print "Error creating $torrent\n";
+		print "Error creating $torrent\n$@\n";
 	}
 
 #        system($BTMake,
@@ -107,9 +108,9 @@ sub btmake {
     my $announce = $OBT->{URL_TRACKER};
     my $piece_len = 2 << ($OBT->{PIECE_LENGTH} - 1);
 
-    $torrent = $OBT->{DIR_TORRENT} . "/$torrent";
+    my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
-    my $t = BT::MetaInfo->new();
+    my $t = BT::OBTMetaInfo->new();
     $t->name($name);
     $t->announce($announce);
     unless ($announce =~ m!^http://[^/]+/!i) {
@@ -131,8 +132,10 @@ sub btmake {
         return 0;
     }
 
-    $t->save("$torrent");
-    print "Created: $torrent\n";
-    #system("btinfo $torrent") if ($::opt_I);
+    my $hash = $t->info_hash_cached($torrent_with_path);
+    $hash = unpack("H*", $hash);
+
+    $t->save($torrent_with_path);
+    print "Created: $torrent_with_path\n";
 }
 
