@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use BT::MetaInfo;
+use BT::OBTMetaInfo;
 use LWP::UserAgent;
 use Time::Local;
 
@@ -117,7 +117,7 @@ sub Upload_Torrent
 	print "Uploading $file\n";
 
 	my $t;
-	eval { $t = BT::MetaInfo->new("$OBT->{DIR_TORRENT}/$file"); };
+	eval { $t = BT::OBTMetaInfo->new("$OBT->{DIR_TORRENT}/$file"); };
 	if ($@) {
 		warn "Error reading torrent $file\n";
 		return undef;
