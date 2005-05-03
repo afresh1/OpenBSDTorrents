@@ -29,7 +29,7 @@ sub Process_Dir
 {
 	my $basedir = shift;
 
-	return undef if $basedir =~ /packages/;
+	#return undef if $basedir =~ /packages/;
 
 	my ($dirs, $files) = Get_Files_and_Dirs($basedir);
 	if (@$files) {
