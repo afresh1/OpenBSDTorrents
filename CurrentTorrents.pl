@@ -71,6 +71,16 @@ foreach my $name (keys %{ $files{torrent} }) {
 		#print "\t$epoch\n";
 		my $torrent = $files{torrent}{$name}{$epoch}{path};
 
+		if (
+			keys %{ $files{torrent}{$name} } == 1 &&
+			$files{torrent}{$name}{$epoch}{dir} 
+				eq $OBT->{DIR_TORRENT}
+		) {
+			#print "Skipping torrent for $name there is only one.\n";
+			next;
+		}
+
+
 		my $t;
 		eval { $t = BT::OBTMetaInfo->new( $torrent ); };
 
@@ -86,15 +96,6 @@ foreach my $name (keys %{ $files{torrent} }) {
 			#print "Deleting $files{torrent}{$name}{$epoch}{file} the path doesn't exist.\n"; 
 			push @delete, $files{torrent}{$name}{$epoch};
 			delete $files{torrent}{$name}{$epoch};
-			next;
-		}
-
-		if (
-			keys %{ $files{torrent}{$name} } == 1 &&
-			$files{torrent}{$name}{$epoch}{dir} 
-				eq $OBT->{DIR_TORRENT}
-		) {
-			#print "Skipping torrent for $name there is only one.\n";
 			next;
 		}
 
