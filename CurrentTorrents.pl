@@ -14,7 +14,7 @@ use BT::OBTMetaInfo;
 
 use YAML;
 
-justme();
+#justme();
 
 my $Name_Filter = shift || '';
 if ($Name_Filter =~ /^(\w*)$/) {
@@ -23,7 +23,12 @@ if ($Name_Filter =~ /^(\w*)$/) {
 	die "Invalid filter: $Name_Filter";
 }
 
+my %Possible_Torrents;
+Process_Dir($OBT->{DIR_FTP});
+
 my %files;
+my %keep;
+my @delete;
 foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 	opendir DIR, $DIR 
 		or die "Couldn't opendir $DIR: $!";
@@ -57,12 +62,14 @@ foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 			epoch     => $epoch,
 		};
 
+		unless (exists $Possible_Torrents{$name}) {
+			print "Would remove $_\n";
+			push @delete, $files{$ext}{$name}{$epoch};
+		}
 	}
 	closedir DIR;
 }
 
-my %keep;
-my @delete;
 foreach my $name (keys %{ $files{torrent} }) {
 	next unless $name =~ /^$Name_Filter/;
 	print "Checking $name\n";
@@ -170,3 +177,24 @@ foreach my $name (keys %keep) {
 		}
 	}
 }
+
+sub Process_Dir
+{
+        my $basedir = shift;
+
+        my ($dirs, $files) = Get_Files_and_Dirs($basedir);
+        if (@$files) {
+		my $dir = $basedir;
+		$dir =~ s/^$OBT->{DIR_FTP}\///;
+                my $torrent = Name_Torrent($dir);
+		$torrent =~ s/-.*$//;
+		$Possible_Torrents{$torrent} = 1;
+        }
+
+        foreach my $subdir (@$dirs) {
+                next if $subdir eq '.';
+                next if $subdir eq '..';
+                Process_Dir("$basedir/$subdir")
+        }
+}
+
