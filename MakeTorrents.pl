@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib 'lib';
-use BT::OBTMetaInfo;
+use BT::MetaInfo::Cached;
 use OpenBSDTorrents;
 
 %ENV = ();
@@ -110,7 +110,7 @@ sub btmake {
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
-    my $t = BT::OBTMetaInfo->new();
+    my $t = BT::MetaInfo::Cached->new();
     $t->name($name);
     $t->announce($announce);
     unless ($announce =~ m!^http://[^/]+/!i) {
@@ -132,7 +132,7 @@ sub btmake {
         return 0;
     }
 
-    my $hash = $t->info_hash_cached($torrent_with_path);
+    my $hash = $t->info_hash;
     $hash = unpack("H*", $hash);
 
     $t->save($torrent_with_path);
