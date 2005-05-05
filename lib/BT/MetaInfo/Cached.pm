@@ -24,12 +24,14 @@ sub new
 
 	my $cache = new Cache::FileCache( $cache_settings );
 
-        my $obj = (defined($file)) ? _load($file, $cache) : {};
+	my $obj = (defined($file)) ? _load($file, $cache) : {};
+
+	bless($obj, $class);
 
 	$obj->{cache} = $cache;
 
-        return(bless($obj, $class));
-}	
+        return $obj;
+}
 
 sub _load {
 	my $file = shift;
@@ -49,11 +51,16 @@ sub _load {
 
 sub save
 {
-	my ($self, $file) = @_;
+	my $self = shift;
+	my $file = shift;
 	my $basename = basename($file);
 
-	$self->SUPER::save($file, @_);
+	my $cache = delete $self->{cache};
 
-        my %info_hash = %$self; # unbless
-	$self->cache->set->($basename, \%info_hash)
+	if ( $self->SUPER::save($file, @_) ) {
+		my %info_hash = %$self; # unbless
+		$cache->set($basename, \%info_hash)
+	}
+
+	$self->{cache} = $cache;
 }
