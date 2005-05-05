@@ -125,7 +125,7 @@ sub Upload_Torrent
 
 	my $size = $t->total_size;
 
-	my $i;
+	my $i = 0;
 	while ($size > 1024) {
 		$size /= 1024;
 		$i++;
