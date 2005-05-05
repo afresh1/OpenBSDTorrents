@@ -5,6 +5,7 @@ use warnings;
 use diagnostics;
 
 use Time::Local;
+use Fcntl ':flock';
 
 use lib 'lib';
 use OpenBSDTorrents;
@@ -87,6 +88,22 @@ foreach my $name (keys %{ $files{torrent} }) {
 			next;
 		}
 
+		my $meta_file = $torrent;
+		$meta_file =~ s/\.torrent$/.$OBT->{META_EXT}/;
+
+		my $hash = undef;
+		if (-e $meta_file) {
+			#print "Reading meta file: $meta_file\n";
+			open my $meta, $meta_file 
+				or die "Couldn't open $meta_file: $!";
+			flock($meta, LOCK_SH);
+			binmode $meta;
+
+			$hash = do { local $/; <$meta> };
+
+			flock($meta, LOCK_UN);
+			close $meta;
+		} else {
 
 		my $t;
 		eval { $t = BT::OBTMetaInfo->new( $torrent ); };
@@ -106,12 +123,15 @@ foreach my $name (keys %{ $files{torrent} }) {
 			next;
 		}
 
-		my $hash = $t->info_hash_cached($torrent);
+		$hash = $t->info_hash_cached($torrent);
 		$hash = unpack("H*", $hash);
+
+		undef $t;
+
+		}
 
 		$files{torrent}{$name}{$epoch}{info_hash} = $hash;
 
-		undef $t;
 
 		if (exists $keep{$name}) {
 			if (exists $keep{$name}{$hash}) {
