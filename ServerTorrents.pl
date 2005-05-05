@@ -9,7 +9,7 @@ use Time::Local;
 
 use lib 'lib';
 use OpenBSDTorrents;
-use BT::OBTMetaInfo;
+use BT::MetaInfo::Cached;
 
 %ENV = ();
 
@@ -117,7 +117,7 @@ sub Upload_Torrent
 	print "Uploading $file\n";
 
 	my $t;
-	eval { $t = BT::OBTMetaInfo->new("$OBT->{DIR_TORRENT}/$file"); };
+	eval { $t = BT::MetaInfo::Cached->new("$OBT->{DIR_TORRENT}/$file"); };
 	if ($@) {
 		warn "Error reading torrent $file\n";
 		return undef;
