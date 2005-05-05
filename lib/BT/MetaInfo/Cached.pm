@@ -46,21 +46,6 @@ sub _load {
 	return $info;
 }
 
-sub _load {
-	my $file = shift;
-	my $cache = shift;
-
-	my $basename = basename($file);
-	
-	my $info = $cache->get( $basename );
-
-	unless (defined $info) {
-		$info = BT::MetaInfo::_load($file);
-		$cache->set( $basename, $info );
-	}
-	return $info;
-}
-
 
 sub save
 {
