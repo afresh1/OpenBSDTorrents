@@ -7,64 +7,75 @@ require 5.6.0;
 use vars qw( $VERSION @ISA );
 
 use Digest::SHA1 qw(sha1);
-use Fcntl ':flock'; # import LOCK_* constants
+use YAML qw/ DumpFile LoadFile /;
 
 use BT::MetaInfo;
 use base 'BT::MetaInfo';
 
 use OpenBSDTorrents;
 
-use Data::Dumper;
-
 $VERSION = do { my @r = (q$Id$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub new
 {
-	my $classname	= shift;
-	return $classname->SUPER::new(@_);
+	my $class = shift;
+        my $file  = shift;
+
+        my $obj = (defined($file)) ? _load($file, @_) : {};
+        return(bless($obj, $class));
 }	
 
-
-sub info_hash_cached 
-{ 
-	my $self = shift;
-	my $torrent = shift;
-
-	return $self->SUPER::info_hash unless $torrent;
-
-	my $meta_file = $torrent;
-	$meta_file =~ s/\.torrent$/.$OBT->{META_EXT}/;
-
-	my $hash = undef;
-
-	if (-e $meta_file) {
-		#print "Reading meta file: $meta_file\n";
-		open my $meta, $meta_file or die "Couldn't open $meta_file: $!";
-		flock($meta, LOCK_SH);
-		binmode $meta;
-
-		$hash = do { local $/; <$meta> };
-
-		flock($meta, LOCK_UN);
-		close $meta;
-	} else {
-		$hash = $self->SUPER::info_hash;
-		#print "Writing meta file: $meta_file\n";
-		open my $meta, '>', $meta_file 
-			or die "Couldn't open $meta_file: $!";
-		flock($meta, LOCK_EX);
-		binmode $meta;
-
-		print $meta $hash;
-
-		flock($meta, LOCK_UN);
-		close $meta;
-
-	}
-	#my $text_hash = unpack("H*", $hash);
-	#print "INFO_HASH: $text_hash\n";
+sub _load {
+	my $file = shift;
+	my $meta_file = shift;
+	my $regen = shift;
 	
-	return $hash;
+	my $info;
+	if ($meta_file && ! $regen && -e $meta_file) {
+		$info = LoadFile($meta_file);
+	}
+
+	unless ($info) {
+		$info = BT::MetaInfo::_load($file);
+		DumpFile($meta_file, $info) if $meta_file;
+	}
+
+	return $info;
 }
+
+#sub cached
+#{
+#	my $self = shift;
+#        my $which_info = shift;
+#	my $file = shift;
+#	my @args = @_;
+#
+#	if (@args) {
+#		return $self->$which_info(@args),
+#	}
+#
+#	return undef unless $which_info;
+#	return $self->$which_info unless $file;
+#
+#	my $info = undef;
+#
+#	if (-e $file) {
+#		#print "Reading meta file: $file\n";
+#		$info = LoadFile($file);
+#	}
+#
+#	unless ($info->{$which_info}) {
+#		my $cur_info = $self->$which_info;
+#
+#		$info->{$which_info} = $cur_info;
+#		DumpFile($file, $info);
+#	}
+#
+#	if (defined $info->{$which_info}) {
+#		return $info->{$which_info};
+#	} else {
+#		return $self->$which_info;
+#	}
+#}
 
 1
