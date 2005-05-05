@@ -61,7 +61,7 @@ sub StartTorrent
 	my $should_fork = 1;
 
 	if ($dir eq 'skip') {
-		$dir = '';
+		#$dir = '';
 		%Need_Update = ();
 		$should_fork = 0;
 	} else {
@@ -93,6 +93,7 @@ sub StartTorrent
 		print "Making torrents for ", join(" ", @now_update), "\n";
 	} else {
 		print "Remaking all torrents\n";
+		push @now_update, $dir;
 	}
 	exec($OBT->{DIR_HOME} . '/regen.sh', @now_update);
 }
