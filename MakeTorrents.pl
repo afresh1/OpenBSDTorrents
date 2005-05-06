@@ -110,8 +110,7 @@ sub btmake {
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
-    $t = BT::MetaInfo::Cached->new(
-        $torrent,
+    my $t = BT::MetaInfo::Cached->new(
         {
             cache_root =>
             $OBT->{DIR_HOME} . '/FileCache'
