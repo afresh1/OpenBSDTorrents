@@ -20,6 +20,11 @@ sub new
         my $file  = shift;
 	my $cache_settings = shift;
 
+	if (ref $file eq 'HASH') {
+		$cache_settings = $file;
+		$file = undef;
+	}
+
 	$cache_settings->{namespace} ||= 'BT::MetaInfo::Cached';
 
 	my $cache = new Cache::FileCache( $cache_settings );
