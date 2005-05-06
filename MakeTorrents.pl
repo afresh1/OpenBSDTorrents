@@ -110,7 +110,14 @@ sub btmake {
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
-    my $t = BT::MetaInfo::Cached->new();
+    $t = BT::MetaInfo::Cached->new(
+        $torrent,
+        {
+            cache_root =>
+            $OBT->{DIR_HOME} . '/FileCache'
+        }
+    );
+
     $t->name($name);
     $t->announce($announce);
     unless ($announce =~ m!^http://[^/]+/!i) {

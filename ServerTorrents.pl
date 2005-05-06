@@ -117,7 +117,16 @@ sub Upload_Torrent
 	print "Uploading $file\n";
 
 	my $t;
-	eval { $t = BT::MetaInfo::Cached->new("$OBT->{DIR_TORRENT}/$file"); };
+        eval {
+		$t = BT::MetaInfo::Cached->new(
+			$torrent,
+			{
+				cache_root =>
+				$OBT->{DIR_HOME} . '/FileCache'
+			}
+		);
+	};
+
 	if ($@) {
 		warn "Error reading torrent $file\n";
 		return undef;
