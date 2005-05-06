@@ -89,7 +89,15 @@ foreach my $name (keys %{ $files{torrent} }) {
 		}
 
 		my $t;
-		eval { $t = BT::MetaInfo::Cached->new( $torrent ); };
+		eval { 
+			$t = BT::MetaInfo::Cached->new( 
+				$torrent, 
+				{ 
+					cache_root => 
+					$OBT->{DIR_HOME} . '/FileCache' 
+				}
+			); 
+		};
 
 		if ($@) {
 			warn "Error reading torrent $torrent\n";
