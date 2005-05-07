@@ -119,7 +119,7 @@ sub Upload_Torrent
 	my $t;
         eval {
 		$t = BT::MetaInfo::Cached->new(
-			$torrent,
+			$file,
 			{
 				cache_root =>
 				$OBT->{DIR_HOME} . '/FileCache'
