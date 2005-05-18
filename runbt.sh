@@ -21,14 +21,14 @@ echo $$ > ${PIDFILE}
 echo -n `date` >> ${LOGFILE}
 echo '	Starting . . . ' >> ${LOGFILE}
 
-nice btlaunchmany.py \
-    --super_seeder 1 \
+nice btlaunchmany \
     --check_hashes 0 \
     --display_interval 60 \
     --minport 6881 --maxport 6989 \
     --max_files_open 75 \
-    --saveas /home/ftp/pub/ --saveas_style 2 \
-    /home/torrentsync/torrents/ >> ${LOGFILE}
+    --saveas_style 2 \
+    --save_in ${OBT_DIR_FTP} \
+    --torrent_dir /home/torrentsync/torrents/ >> ${LOGFILE}
 
 echo -n `date` >> ${LOGFILE}
 echo '	Died . . . ' >> ${LOGFILE}
