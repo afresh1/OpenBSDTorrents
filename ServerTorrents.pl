@@ -156,7 +156,7 @@ sub Upload_Torrent
 		torrent  => [ $OBT->{DIR_TORRENT} . "/$file" ],
 		url      => "/torrents/$file",
 		filename => $filename,
-		filedate => $time,
+		filedate => $t->creation_date,
 		info     => $comment,
 		hash     => '',
 		autoset  => 'enabled', # -> checked="checked"
