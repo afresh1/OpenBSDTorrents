@@ -129,7 +129,7 @@ sub btmake {
     #    }
     #}
     $t->piece_length($piece_len);
-    $t->creation_date(gmtime);
+    $t->creation_date(time);
     print "Checksumming files. This may take a little while...\n";
     $t->set_files(@$files);
 
