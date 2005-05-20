@@ -57,20 +57,28 @@ foreach (readdir DIR) {
 	my ($name, $year, $mon, $mday, $hour, $min) = 
 	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
 
-	my $time = "$year.$mon.$mday $hour:$min";
+	my $t;
+        eval {
+		$t = BT::MetaInfo::Cached->new(
+			$_,
+			{
+				cache_root =>
+				$OBT->{DIR_HOME} . '/FileCache'
+			}
+		);
+	};
 
-	$mon--;
+	if ($@) {
+		warn "Error reading torrent $_\n";
+		return undef;
+	}
 
-	my $epoch = timegm(0,$min,$hour,$mday,$mon,$year);
+	my $epoch = $t->creation_date;
 
 	$files{$name}{$epoch} = {
 		file      => $_,
-		year      => $year,
-		mon       => $mon,
-		mday      => $mday,
-		hour      => $hour,
-		min       => $min,
-		time      => $time,
+		details   => $t,
+		name      => $name,
 		epoch     => $epoch,
 	};
 
@@ -92,7 +100,7 @@ foreach my $name (keys %files) {
 			#	$files{$name}{$epoch}{hour} . ':' .
 			#	$files{$name}{$epoch}{min}  . ':00';
 				
-			Upload_Torrent($torrent, $files{$name}{$epoch}{time});
+			Upload_Torrent($files{$name}{$epoch});
 		}
 		next;
 	}
@@ -111,28 +119,19 @@ $ua->get($OBT->{URL_SANITY});
 
 sub Upload_Torrent
 {
-	my $file = shift;
-	my $time = shift;
+	my $torrent = shift;
+	my $t = $torrent->{'details'};
 
+	my $file = $torrent->{'file'};
 	print "Uploading $file\n";
 
-	my $t;
-        eval {
-		$t = BT::MetaInfo::Cached->new(
-			$file,
-			{
-				cache_root =>
-				$OBT->{DIR_HOME} . '/FileCache'
-			}
-		);
-	};
-
-	if ($@) {
-		warn "Error reading torrent $file\n";
-		return undef;
-	}
-
 	my $size = $t->total_size;
+	my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) =
+		gmtime($t->creation_date);
+	$year += 1900;
+	$mon++;
+	my $time = sprintf "%04d.%02d.%02d %02d:%02d", 
+		$year, $mon, $mday,  $hour, $min;
 
 	my $i = 0;
 	while ($size > 1024) {
