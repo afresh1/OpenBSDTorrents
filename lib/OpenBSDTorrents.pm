@@ -11,26 +11,35 @@ our @ISA = qw(Exporter);
 our $VERSION = '0.01';
 
 our @EXPORT = qw(
-	$BaseDir
-	$HomeDir
-	$TorrentDir
-	$BaseName
-	$Tracker
+	$OBT
 	&Name_Torrent
 	&Get_Files_and_Dirs
 	&justme
 );
-	
-our $BaseDir    = '/home/ftp/pub';
-our $HomeDir    = '/home/OpenBSDTorrents';
-our $TorrentDir = '/home/torrentsync/torrents';
-our $BaseName   = 'OpenBSD';
-our $Tracker    = 'http://OpenBSD.somedomain.net/announce.php';
 
-# These are regexes that tell what files to skip;
-our $SkipDirs  = qr/\/patches$/;
-our $SkipFiles = qr/^\./;
+my $config_file = '/etc/OpenBSDTorrents.conf';
+our $OBT = Config();
 
+sub Config
+{
+	my %config;
+	open FILE, $config_file or die "Couldn't open FILE $config_file: $!";
+	while (<FILE>) {
+		chomp;
+		s/#.*$//;
+		s/\s+$//;
+		next unless $_;
+		my ($name, $val) = split /=/, $_, 2;
+		$name =~ s/^OBT_//;
+		# This should really look for contents that are a 
+		# bit safer, but I can't think of what would work here.
+		if ($val =~ /^(.*)$/) {
+			$config{$name} = $1;
+		}
+	}
+	close FILE;
+	return \%config;
+}
 
 sub Name_Torrent
 {
@@ -64,8 +73,10 @@ sub Get_Files_and_Dirs
     		push(@files, $item) unless exists $dirs{$item};
 	}
 
-	@dirs  = grep { ! /$SkipDirs/  } @dirs  if $SkipDirs;
-	@files = grep { ! /$SkipFiles/ } @files if $SkipFiles;
+	@dirs  = grep { ! /$OBT->{SKIP_DIRS}/  } @dirs  
+		if $OBT->{SKIPDIRS};
+	@files = grep { ! /$OBT->{SKIP_FILES}/ } @files 
+		if $OBT->{SKIP_FILES};
 
 	return \@dirs, \@files;
 }
@@ -94,7 +105,7 @@ sub justme {
 		die "Couldn't figure out myname";
 	}
 
-	my $SEMA = "$HomeDir/run/$myname.pid";
+	my $SEMA = $OBT->{DIR_HOME} . "/run/$myname.pid";
         if (open SEMA, "<", $SEMA) {
                 my $pid = <SEMA>;
                 if (defined $pid) {
