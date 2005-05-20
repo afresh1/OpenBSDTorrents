@@ -25,7 +25,9 @@ sub new
 		$file = undef;
 	}
 
-	$cache_settings->{namespace} ||= 'BT::MetaInfo::Cached';
+	$cache_settings->{namespace}           ||= 'BT::MetaInfo::Cached';
+	$cache_settings->{default_expires_in}  ||=  7 * 24 * 60 * 60;
+	$cache_settings->{auto_purge_interval} ||=  1 *  1 * 10 * 60;
 
 	my $cache = new Cache::FileCache( $cache_settings );
 
