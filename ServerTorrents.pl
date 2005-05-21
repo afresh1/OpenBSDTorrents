@@ -60,7 +60,7 @@ foreach (readdir DIR) {
 	my $t;
         eval {
 		$t = BT::MetaInfo::Cached->new(
-			$_,
+			$OBT->{DIR_TORRENT} . '/' . $_,
 			{
 				cache_root =>
 				$OBT->{DIR_HOME} . '/FileCache'
@@ -70,7 +70,7 @@ foreach (readdir DIR) {
 
 	if ($@) {
 		warn "Error reading torrent $_\n";
-		return undef;
+		next;
 	}
 
 	my $epoch = $t->creation_date;
@@ -92,17 +92,16 @@ foreach my $name (keys %files) {
 	foreach my $epoch ( sort { $b <=> $a } keys %{ $files{$name} } ) {
 		#print "\t$epoch\n";
 		my $torrent = $files{$name}{$epoch}{file};
-		unless (exists $server_torrents{$torrent} ) {
-			#my $time = 
-			#	$files{$name}{$epoch}{year} . '-' . 
-			#	$files{$name}{$epoch}{mon}  . '-' . 
-			#	$files{$name}{$epoch}{mday} . ' ' .
-			#	$files{$name}{$epoch}{hour} . ':' .
-			#	$files{$name}{$epoch}{min}  . ':00';
-				
-			Upload_Torrent($files{$name}{$epoch});
-		}
-		next;
+
+		my $hash = $files{$name}{$epoch}{'details'}->info_hash;
+		$hash = unpack("H*", $hash);
+
+		next if (
+			exists $server_torrents{$torrent} &&
+			$server_torrents{$torrent} eq $hash
+		);
+
+		Upload_Torrent($files{$name}{$epoch});
 	}
 }
 
@@ -133,6 +132,13 @@ sub Upload_Torrent
 	my $time = sprintf "%04d.%02d.%02d %02d:%02d", 
 		$year, $mon, $mday,  $hour, $min;
 
+	($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) =
+		localtime($t->creation_date);
+	$year += 1900;
+	$mon++;
+	my $sql_time = sprintf "%04d-%02d-%02d %02d:%02d", 
+		$year, $mon, $mday,  $hour, $min;
+
 	my $i = 0;
 	while ($size > 1024) {
 		$size /= 1024;
@@ -156,7 +162,7 @@ sub Upload_Torrent
 		torrent  => [ $OBT->{DIR_TORRENT} . "/$file" ],
 		url      => "/torrents/$file",
 		filename => $filename,
-		filedate => $t->creation_date,
+		filedate => $sql_time,
 		info     => $comment,
 		hash     => '',
 		autoset  => 'enabled', # -> checked="checked"
