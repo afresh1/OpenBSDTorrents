@@ -23,7 +23,7 @@ echo '	Starting . . . ' >> ${LOGFILE}
 
 nice btlaunchmany \
     --check_hashes 0 \
-    --display_interval 60 \
+    --display_interval 600 \
     --minport 6881 --maxport 6989 \
     --max_files_open 75 \
     --saveas_style 2 \
