@@ -162,30 +162,30 @@ foreach my $name (keys %{ $files{$OBT->{META_EXT} } }) {
 }
 
 
-#print Dump \%keep;
-foreach my $name (keys %keep) {
-	foreach my $hash (keys %{ $keep{$name} }) {
-		my $file = $keep{$name}{$hash}{file};
-		my $dir  = $keep{$name}{$hash}{dir };
-		if ($dir eq $OBT->{DIR_NEW_TORRENT}) {
-			print "Moving $file to current torrents\n";
-			rename("$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file)
-				or die "Couldn't rename '$file': $!";
-
-			my $name = $keep{$name}{$hash}{name};
-			my $epoch = $keep{$name}{$hash}{epoch};
-
-			if (exists $files{txt}{$name}{$epoch}) { 
-				my $m_file = $files{txt}{$name}{$epoch}{file};
-				my $m_dir  = $files{txt}{$name}{$epoch}{dir };
-				rename(
-					"$m_dir/$m_file", 
-					$OBT->{DIR_TORRENT} . "/" . $m_file
-				) or die "Couldn't rename '$m_file': $!";
-			}
-		}
-	}
-}
+##print Dump \%keep;
+#foreach my $name (keys %keep) {
+#	foreach my $hash (keys %{ $keep{$name} }) {
+#		my $file = $keep{$name}{$hash}{file};
+#		my $dir  = $keep{$name}{$hash}{dir };
+#		if ($dir eq $OBT->{DIR_NEW_TORRENT}) {
+#			print "Moving $file to current torrents\n";
+#			rename("$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file)
+#				or die "Couldn't rename '$file': $!";
+#
+#			my $name = $keep{$name}{$hash}{name};
+#			my $epoch = $keep{$name}{$hash}{epoch};
+#
+#			if (exists $files{txt}{$name}{$epoch}) { 
+#				my $m_file = $files{txt}{$name}{$epoch}{file};
+#				my $m_dir  = $files{txt}{$name}{$epoch}{dir };
+#				rename(
+#					"$m_dir/$m_file", 
+#					$OBT->{DIR_TORRENT} . "/" . $m_file
+#				) or die "Couldn't rename '$m_file': $!";
+#			}
+#		}
+#	}
+#}
 
 sub Process_Dir
 {
