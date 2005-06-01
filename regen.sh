@@ -24,10 +24,26 @@ fi
 echo ${OBT_DIR_HOME}/CurrentTorrents.pl
 ${OBT_DIR_HOME}/CurrentTorrents.pl
 
-if [ $? != 253 ]; then
-	echo lftp -f ${OBT_DIR_HOME}/lftp.script
-	lftp -f ${OBT_DIR_HOME}/lftp.script
+#if [ $? != 253 ]; then exit; fi
 
-	echo ${OBT_DIR_HOME}/ServerTorrents.pl
-	${OBT_DIR_HOME}/ServerTorrents.pl
-fi
+echo Removing old torrents
+for f in `ls ${OBT_DIR_CUR_TORRENT}`; do
+        if [ ! -e ${OBT_DIR_TORRENT}/$f ]; then
+                rm ${OBT_DIR_CUR_TORRENT}/$f
+        fi
+done
+
+echo ${OBT_DIR_HOME}/ServerTorrents.pl
+${OBT_DIR_HOME}/ServerTorrents.pl
+
+echo lftp -f ${OBT_DIR_HOME}/lftp.script
+lftp -f ${OBT_DIR_HOME}/lftp.script
+
+sleep 60;
+
+echo Starting new torrents
+for f in `ls ${OBT_DIR_TORRENT}`; do
+        if [ ! -e ${OBT_DIR_CUR_TORRENT}/$f ]; then
+                ln -s ${OBT_DIR_TORRENT}/$f ${OBT_DIR_CUR_TORRENT}/$f
+        fi
+done
