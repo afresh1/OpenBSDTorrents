@@ -28,7 +28,7 @@ nice btlaunchmany \
     --max_files_open 75 \
     --saveas_style 2 \
     --save_in ${OBT_DIR_FTP} \
-    --torrent_dir /home/torrentsync/torrents/ >> ${LOGFILE}
+    --torrent_dir ${OBT_DIR_CUR_TORRENT} >> ${LOGFILE}
 
 echo -n `date` >> ${LOGFILE}
 echo '	Died . . . ' >> ${LOGFILE}
