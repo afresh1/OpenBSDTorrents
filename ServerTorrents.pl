@@ -32,11 +32,11 @@ if ($response->is_success) {
             s/^\s+//;
             s/\s+$//;
             next unless $_;
-            my ($name, $hash) = split /\t/;
+            my ($name, $hash, $disabled) = split /\t/;
             next if $name eq 'File';
 
             $name =~ s#^/torrents/##;
-            $server_torrents{$name} = $hash;
+            $server_torrents{$name}{$hash} = $disabled;
         }
     }
 } else {
@@ -85,9 +85,12 @@ foreach (readdir DIR) {
 }
 closedir DIR;
 
-#print Dump \%server_torrents, \%files;
+#use Data::Dumper;
+#print Dumper \%server_torrents;#, \%files;
+#exit;
 
-foreach my $name (keys %files) {
+my %torrents;
+FILE: foreach my $name (keys %files) {
 	#print "$name\n";
 	foreach my $epoch ( sort { $b <=> $a } keys %{ $files{$name} } ) {
 		#print "\t$epoch\n";
@@ -96,21 +99,22 @@ foreach my $name (keys %files) {
 		my $hash = $files{$name}{$epoch}{'details'}->info_hash;
 		$hash = unpack("H*", $hash);
 
-		next if (
-			exists $server_torrents{$torrent} &&
-			$server_torrents{$torrent} eq $hash
-		);
+		$torrents{$torrent}{$hash} = $files{$name}{$epoch};
 
-		Upload_Torrent($files{$name}{$epoch});
+		unless (exists $server_torrents{$torrent}{$hash}) {
+			Upload_Torrent($files{$name}{$epoch});
+		}
 	}
 }
 
-foreach my $file (keys %server_torrents) {
-	my ($name, $year, $mon, $mday, $hour, $min) = 
-	   $file =~
-	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
-	unless (exists $files{$name}) {
-		Delete_Torrent($file);
+foreach my $torrent (keys %server_torrents) {
+	foreach my $hash (keys %{ $server_torrents{$torrent} }) {
+		unless (
+			exists $torrents{$torrent}{$hash} ||
+			$server_torrents{$torrent}{$hash} == 1
+		) {
+			Delete_Torrent($torrent, $hash);
+		}
 	}
 }
 
@@ -178,6 +182,27 @@ sub Upload_Torrent
 
 sub Delete_Torrent
 {
-	my $file = shift;
-	print "Will delete $file soon enough\n";
+	my $filename = shift;
+	my $hash = shift;
+	die "No hash passed!" unless $hash;
+
+	print "Disabling $filename\n";
+
+	my $response = $ua->post($OBT->{'URL_DELETE'}, {
+		username => $OBT->{UPLOAD_USER},
+		password => $OBT->{UPLOAD_PASS},
+		filename => $filename,
+		hash     => $hash,
+	}, Content_Type => 'form-data');
+
+	if ($response->is_success) {
+		#print $response->content;
+		if ($response->content =~ /Torrent was removed successfully/) {
+			print STDERR "Disabled $filename\n";
+		} else {
+			print STDERR "An error occoured removing $filename\n";
+		}
+	} else {
+    		die $response->status_line;
+	}
 }
