@@ -1,5 +1,5 @@
 package OpenBSDTorrents;
-#$Id$
+#$RedRiver: OpenBSDTorrents.pm,v 1.8 2005/05/20 18:36:34 andrew Exp $
 use 5.008005;
 use strict;
 use warnings;

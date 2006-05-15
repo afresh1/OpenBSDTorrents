@@ -1,4 +1,4 @@
-# $Id$
+# $RedRiver: Cached.pm,v 1.11 2005/05/21 00:05:13 andrew Exp $
 use strict;
 
 package BT::MetaInfo::Cached;

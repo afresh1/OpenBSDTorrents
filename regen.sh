@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id$
+#$RedRiver: regen.sh,v 1.7 2005/06/01 18:19:06 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 

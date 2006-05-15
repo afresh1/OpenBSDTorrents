@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id$
+#$RedRiver: seedoptimize.pl,v 1.1 2005/05/05 00:46:09 andrew Exp $
 use strict;
 use warnings;
 

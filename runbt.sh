@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id$
+#$RedRiver: runbt.sh,v 1.13 2005/06/01 18:20:26 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 LOGFILE=/home/torrentseeder/runbt.log

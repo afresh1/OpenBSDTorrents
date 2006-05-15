@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$Id$
+#$RedRiver: ServerTorrents.pl,v 1.20 2005/06/03 01:32:40 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
