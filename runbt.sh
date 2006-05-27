@@ -1,5 +1,5 @@
 #!/bin/sh
-#$RedRiver: runbt.sh,v 1.13 2005/06/01 18:20:26 andrew Exp $
+#$RedRiver: runbt.sh,v 1.14 2006/05/15 18:47:04 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 LOGFILE=/home/torrentseeder/runbt.log
@@ -24,8 +24,8 @@ echo '	Starting . . . ' >> ${LOGFILE}
 nice btlaunchmany \
     --check_hashes 0 \
     --display_interval 600 \
-    --minport 6881 --maxport 6989 \
-    --max_files_open 75 \
+    --minport 60881 --maxport 60981 \
+    --max_files_open 25 \
     --saveas_style 2 \
     --save_in ${OBT_DIR_FTP} \
     --torrent_dir ${OBT_DIR_CUR_TORRENT} >> ${LOGFILE}
