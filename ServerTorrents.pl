@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.20 2005/06/03 01:32:40 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.21 2006/05/15 18:47:04 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -62,8 +62,8 @@ foreach (readdir DIR) {
 		$t = BT::MetaInfo::Cached->new(
 			$OBT->{DIR_TORRENT} . '/' . $_,
 			{
-				cache_root =>
-				$OBT->{DIR_HOME} . '/FileCache'
+				cache_root => '/tmp/OBTFileCache'
+				#$OBT->{DIR_HOME} . '/FileCache'
 			}
 		);
 	};

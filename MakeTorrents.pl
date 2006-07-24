@@ -1,5 +1,6 @@
-#!/usr/bin/perl -T
-#$RedRiver: MakeTorrents.pl,v 1.18 2005/05/20 16:25:35 andrew Exp $
+#!/usr/bin/perl
+# -T
+#$RedRiver: MakeTorrents.pl,v 1.19 2006/05/15 18:47:04 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -112,8 +113,7 @@ sub btmake {
 
     my $t = BT::MetaInfo::Cached->new(
         {
-            cache_root =>
-            $OBT->{DIR_HOME} . '/FileCache'
+		cache_root => '/tmp/OBTFileCache'
         }
     );
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-#$RedRiver: runbt.sh,v 1.14 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: runbt.sh,v 1.15 2006/05/27 04:31:48 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 LOGFILE=/home/torrentseeder/runbt.log
@@ -21,8 +21,7 @@ echo $$ > ${PIDFILE}
 echo -n `date` >> ${LOGFILE}
 echo '	Starting . . . ' >> ${LOGFILE}
 
-nice btlaunchmany \
-    --check_hashes 0 \
+nice launchmany-console \
     --display_interval 600 \
     --minport 60881 --maxport 60981 \
     --max_files_open 25 \

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.8 2005/05/05 01:07:16 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.9 2006/05/15 18:47:04 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -17,22 +17,23 @@ my %Need_Update;
 
 use YAML;
 
-# *** This requires --log-format="%t [%p] %o %f %l" on the rsync command
 
 my $last_dir = '';
 while (<>) {
 	chomp;
-	if (my ($year,  $mon,  $mday,   $time,               $pid,   $oper, $file, $size) = 
-	    m#^(\d{4})/(\d{2})/(\d{2}) (\d{2}:\d{2}:\d{2}) \[(\d+)\] (\S+) (.+) (\d+)$# ) {
-		#print "($year, $mon, $mday, $time, $pid, $oper, $file, $size)\n";
-		my ($dir, $file) = $file =~ m#^(.*)/([^/]+)#;
-		#print "$dir - $file\n";
+	print $_, "\n";
+	if (my ($message, $file) = m#(.*)\s+\`([^']+)'#) {
+		next if $message eq 'Making directory';
+
+		my $dir = '';
+		if ($file =~ m#^(.*)/([^/]+)#) {
+			($dir, $file) = ($1, $2);
+		}
+		#print "$message - $dir - $file\n";
 		if ($last_dir && $last_dir ne $dir) {
 			StartTorrent($last_dir);
 		}
 		$last_dir = $dir;
-	} else {
-		#print $_;
 	}
 }
 
@@ -86,8 +87,6 @@ sub StartTorrent
 		}
 
 	}
-
-	chdir $OBT->{DIR_HOME} or die "Can't chdir to $OBT->{DIR_HOME}: $!";
 
 	if (@now_update) {
 		print "Making torrents for ", join(" ", @now_update), "\n";

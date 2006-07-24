@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.20 2005/06/01 18:01:46 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.21 2006/05/15 18:47:04 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -73,7 +73,7 @@ foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 
 foreach my $name (keys %{ $files{torrent} }) {
 	next unless $name =~ /^$Name_Filter/;
-	print "Checking $name\n";
+	#print "Checking $name\n";
 
 	foreach my $epoch ( sort { $b <=> $a } keys %{ $files{torrent}{$name} } ) {
 		#print "\t$epoch\n";
@@ -93,8 +93,8 @@ foreach my $name (keys %{ $files{torrent} }) {
 			$t = BT::MetaInfo::Cached->new( 
 				$torrent, 
 				{ 
-					cache_root => 
-					$OBT->{DIR_HOME} . '/FileCache' 
+					cache_root => '/tmp/OBTFileCache'
+					#$OBT->{DIR_HOME} . '/FileCache' 
 				}
 			); 
 		};

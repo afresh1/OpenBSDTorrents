@@ -1,0 +1,45 @@
+#!/bin/sh
+# $RedRiver$
+
+. /etc/OpenBSDTorrents.conf
+
+cd ${OBT_DIR_HOME}
+PIDFILE=${OBT_DIR_HOME}/run/mirror.pid
+
+if [ -e ${PIDFILE} ]; then
+	PID=`head -1 ${PIDFILE}`
+	kill -0 ${PID} 2> /dev/null
+	if [ $? -eq 0 ]; then
+		echo Already running
+		exit 1
+	fi
+fi
+echo $$ > ${PIDFILE}
+
+SERVER=ftp://ftp3.usa.openbsd.org/pub/${OBT_BASENAME}
+
+lftp -c "mirror --delete \
+	--verbose=1 \
+	-x ls-lR.gz \
+	-x \.mirror\..* \
+	-x /\..* \
+	-x ^OpenBGPD/ \
+	-x ^OpenNTPD/ \
+	-x ^OpenSSH/ \
+	-x ^cvs/ \
+	-x ^src/ \
+	-x ^src.tar.gz \
+	-x ^srcsys.tar.gz \
+	-x ^distfiles/ \
+	-x ^snapshots/packages/ \
+	-x ^(patches/)?2\../ \
+	-x ^(patches/)?3\.0/ \
+	-x ^(patches/)?3\.1/ \
+	-x ^(patches/)?3\.2/ \
+	-x ^(patches/)?3\.3/ \
+	-x ^(patches/)?3\.4/ \
+	-x ^(patches/)?3\.5/ \
+	-x ^(patches/)?3\.6/ \
+	-x ^(patches/)?3\.7/ \
+	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}"
+
