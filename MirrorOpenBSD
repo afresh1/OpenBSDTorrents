@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver$
+# $RedRiver: MirrorOpenBSD,v 1.1 2006/07/24 18:03:53 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -16,30 +16,23 @@ if [ -e ${PIDFILE} ]; then
 fi
 echo $$ > ${PIDFILE}
 
-SERVER=ftp://ftp3.usa.openbsd.org/pub/${OBT_BASENAME}
+SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
+#SERVER=rsync://ftp3.usa.openbsd.org/ftp/
 
-lftp -c "mirror --delete \
-	--verbose=1 \
-	-x ls-lR.gz \
-	-x \.mirror\..* \
-	-x /\..* \
-	-x ^OpenBGPD/ \
-	-x ^OpenNTPD/ \
-	-x ^OpenSSH/ \
-	-x ^cvs/ \
-	-x ^src/ \
-	-x ^src.tar.gz \
-	-x ^srcsys.tar.gz \
-	-x ^distfiles/ \
-	-x ^snapshots/packages/ \
-	-x ^(patches/)?2\../ \
-	-x ^(patches/)?3\.0/ \
-	-x ^(patches/)?3\.1/ \
-	-x ^(patches/)?3\.2/ \
-	-x ^(patches/)?3\.3/ \
-	-x ^(patches/)?3\.4/ \
-	-x ^(patches/)?3\.5/ \
-	-x ^(patches/)?3\.6/ \
-	-x ^(patches/)?3\.7/ \
-	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}"
+rsync -az --delete --delete-excluded \
+	--verbose=1 --log-format="%o \`%f'%L %b %l" \
+	-f "exclude ls-lR.gz" \
+	-f "exclude \.mirror\." \
+	-f "exclude /\." \
+	-f "exclude /OpenBGPD/" \
+	-f "exclude /OpenNTPD/" \
+	-f "exclude /OpenSSH/" \
+	-f "exclude /cvs/" \
+	-f "exclude /src/" \
+	-f "exclude /distfiles/" \
+	-f "exclude /patches/" \
+	-f "exclude /snapshots/packages/" \
+	-f "exclude /2\.?/" \
+	-f "exclude /3\.[0-8]/" \
+	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
 
