@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -T
-#$RedRiver: MakeTorrents.pl,v 1.19 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: MakeTorrents.pl,v 1.20 2006/07/24 18:03:53 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -41,8 +41,7 @@ sub Process_Dir
 	return 1 if $StartDir ne $OBT->{BASENAME};
 
 	foreach my $subdir (@$dirs) {
-		next if $subdir eq '.';
-		next if $subdir eq '..';
+		next if $subdir =~ /^\./;
 		Process_Dir("$basedir/$subdir")
 	}
 }
