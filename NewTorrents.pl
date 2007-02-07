@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.9 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.10 2006/07/24 18:03:53 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -15,15 +15,14 @@ my %Need_Update;
 
 %ENV = ();
 
-use YAML;
-
-
 my $last_dir = '';
 while (<>) {
+	print;
 	chomp;
-	print $_, "\n";
-	if (my ($message, $file) = m#(.*)\s+\`([^']+)'#) {
+	if (my ($message, $file, $xfer, $size) = 
+	    m#(.*)\s+\`([^']+)'\s+(\d+)\s+(\d+)#) {
 		next if $message eq 'Making directory';
+		next unless $xfer;
 
 		my $dir = '';
 		if ($file =~ m#^(.*)/([^/]+)#) {

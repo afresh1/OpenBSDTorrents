@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver: MirrorOpenBSD,v 1.1 2006/07/24 18:03:53 andrew Exp $
+# $RedRiver: MirrorOpenBSD,v 1.2 2006/11/06 23:22:22 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -21,9 +21,8 @@ SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
 
 rsync -az --delete --delete-excluded \
 	--verbose=1 --log-format="%o \`%f'%L %b %l" \
+	-f "exclude .*" \
 	-f "exclude ls-lR.gz" \
-	-f "exclude \.mirror\." \
-	-f "exclude /\." \
 	-f "exclude /OpenBGPD/" \
 	-f "exclude /OpenNTPD/" \
 	-f "exclude /OpenSSH/" \
