@@ -1,19 +1,19 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.21 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.22 2006/07/24 18:03:53 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
 
 use Time::Local;
 use Fcntl ':flock';
+use File::Basename;
+#use YAML;
 
 use lib 'lib';
 use OpenBSDTorrents;
 use BT::MetaInfo::Cached;
 
 %ENV = ();
-
-use YAML;
 
 #justme();
 
@@ -41,11 +41,16 @@ foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 		} else {
 			die "Invalid character in $_: $!";
 		}
-		my ($name, $year, $mon, $mday, $hour, $min) = 
-		   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
+		my $epoch = 0;
+		my $name  = basename($_, '.torrent');
 
-		$mon--;
-		my $epoch = timegm(0,$min,$hour,$mday,$mon,$year);
+		if (my ($base, $year, $mon, $mday, $hour, $min) = 
+		   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/) {
+
+			$mon--;
+ 			$epoch = timegm(0,$min,$hour,$mday,$mon,$year);
+			$name = $base;
+		}
 
 		#print "Adding $_\n";
 
@@ -54,16 +59,19 @@ foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 			dir       => $DIR,
 			path      => "$DIR/$_",
 			ext       => $ext,
-			year      => $year,
-			mon       => $mon,
-			mday      => $mday,
-			hour      => $hour,
-			min       => $min,
+			#year      => $year,
+			#mon       => $mon,
+			#mday      => $mday,
+			#hour      => $hour,
+			#min       => $min,
 			name      => $name,
 			epoch     => $epoch,
 		};
 
-		unless (exists $Possible_Torrents{$name}) {
+		if (
+			$name =~ m/\A $OBT->{BASENAME} /xms &&
+			! exists $Possible_Torrents{$name}
+		) {
 			print "Would remove $_\n";
 			push @delete, $files{$ext}{$name}{$epoch};
 		}
@@ -145,6 +153,7 @@ foreach my $name (keys %{ $files{torrent} }) {
 }
 
 #print Dump \%files, \%keep, \@delete;
+#exit;
 
 foreach (@delete) {
 	print "Deleting '$_->{path}'\n";

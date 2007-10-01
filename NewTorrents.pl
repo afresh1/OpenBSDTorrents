@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.10 2006/07/24 18:03:53 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.11 2007/02/07 23:09:05 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -57,6 +57,7 @@ sub StartTorrent
 {
 	my $dir = shift;
 	return undef unless $dir;
+	$dir =~ s/^.*$OBT->{BASENAME}\///;
 
 	my $should_fork = 1;
 

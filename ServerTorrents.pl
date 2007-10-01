@@ -1,19 +1,19 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.21 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.22 2006/07/24 18:03:53 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
 
 use LWP::UserAgent;
 use Time::Local;
+use File::Basename;
+#use YAML;
 
 use lib 'lib';
 use OpenBSDTorrents;
 use BT::MetaInfo::Cached;
 
 %ENV = ();
-
-#use YAML;
 
 justme();
 
@@ -43,7 +43,6 @@ if ($response->is_success) {
     die $response->status_line;
 }
 
-
 my %files;
 opendir DIR, $OBT->{DIR_TORRENT} or die "Couldn't opendir $OBT->{DIR_TORRENT}: $!";
 foreach (readdir DIR) {
@@ -54,8 +53,13 @@ foreach (readdir DIR) {
 		die "Invalid character in $_: $!";
 	}
 	next unless /\.torrent$/;
-	my ($name, $year, $mon, $mday, $hour, $min) = 
-	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/;
+
+	my $name = basename($_, '.torrent');
+
+	if (my ($base, $year, $mon, $mday, $hour, $min) = 
+	   /^(.*)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/) {
+		$name = $base;
+	}
 
 	my $t;
         eval {
@@ -85,8 +89,8 @@ foreach (readdir DIR) {
 }
 closedir DIR;
 
-#use Data::Dumper;
-#print Dumper \%server_torrents;#, \%files;
+#print Dump \%server_torrents;
+#print Dump \%files;
 #exit;
 
 my %torrents;
@@ -154,8 +158,11 @@ sub Upload_Torrent
 	my $comment = $t->{comment};
 	$comment =~ s/\n.*$//s;
 	
-	my ($filename) = $comment =~ /Files from (.+)/;
+	my $filename = 
+		 $comment =~ /Files from (.+)/ ? $1
+		:                                $file;
 	$filename =~ s#/# #g;
+	$filename =~ s/\.torrent\z//;
 	
 	$comment  .= " [$size]";
 	$filename .= " [$time]";

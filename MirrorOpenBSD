@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver: MirrorOpenBSD,v 1.2 2006/11/06 23:22:22 andrew Exp $
+# $RedRiver: MirrorOpenBSD,v 1.3 2007/02/07 23:09:05 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -19,7 +19,8 @@ echo $$ > ${PIDFILE}
 SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
 #SERVER=rsync://ftp3.usa.openbsd.org/ftp/
 
-rsync -az --delete --delete-excluded \
+rsync -az \
+	--delete --delete-excluded \
 	--verbose=1 --log-format="%o \`%f'%L %b %l" \
 	-f "exclude .*" \
 	-f "exclude ls-lR.gz" \
@@ -32,6 +33,6 @@ rsync -az --delete --delete-excluded \
 	-f "exclude /patches/" \
 	-f "exclude /snapshots/packages/" \
 	-f "exclude /2\.?/" \
-	-f "exclude /3\.[0-8]/" \
+	-f "exclude /3\.?/" \
 	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
 
