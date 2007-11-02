@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.22 2006/07/24 18:03:53 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.23 2007/10/01 20:17:23 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -159,7 +159,7 @@ sub Upload_Torrent
 	$comment =~ s/\n.*$//s;
 	
 	my $filename = 
-		 $comment =~ /Files from (.+)/ ? $1
+		 $comment =~ /($OBT->{BASENAME}.+)/ ? $1
 		:                                $file;
 	$filename =~ s#/# #g;
 	$filename =~ s/\.torrent\z//;

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.22 2006/07/24 18:03:53 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.23 2007/10/01 20:17:23 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -109,14 +109,16 @@ foreach my $name (keys %{ $files{torrent} }) {
 
 		if ($@) {
 			warn "Error reading torrent $torrent\n";
+			push @delete, $files{torrent}{$name}{$epoch};
+			delete $files{torrent}{$name}{$epoch};
 			next;
 		}
 
 		$files{torrent}{$name}{$epoch}{comment}   = $t->{comment};
-		my ($path) = $t->{comment} =~ /Files from ([^\n]+)\n/s;
+		my ($path) = $t->{comment} =~ /($OBT->{BASENAME}\/[^\n]+)\n/s;
 
-		unless (-d $OBT->{DIR_FTP} . "/$path") {
-			#print "Deleting $files{torrent}{$name}{$epoch}{file} the path doesn't exist.\n"; 
+		unless (-e $OBT->{DIR_FTP} . "/$path") {
+			print "Deleting $files{torrent}{$name}{$epoch}{file} the path ($path) doesn't exist.\n"; 
 			push @delete, $files{torrent}{$name}{$epoch};
 			delete $files{torrent}{$name}{$epoch};
 			next;
@@ -207,6 +209,13 @@ sub Process_Dir
                 my $torrent = Name_Torrent($dir);
 		$torrent =~ s/-.*$//;
 		$Possible_Torrents{$torrent} = 1;
+		foreach my $file (@$files) {
+			if ($file =~ /$INSTALL_ISO_REGEX/) {
+				$torrent = Name_Torrent("$dir/$file");
+				$torrent =~ s/-.*$//;
+				$Possible_Torrents{$torrent} = 1;
+			}
+		}
         }
 
         foreach my $subdir (@$dirs) {

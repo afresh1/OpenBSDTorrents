@@ -1,5 +1,5 @@
 package OpenBSDTorrents;
-#$RedRiver: OpenBSDTorrents.pm,v 1.8 2005/05/20 18:36:34 andrew Exp $
+#$RedRiver: OpenBSDTorrents.pm,v 1.9 2006/05/15 18:47:04 andrew Exp $
 use 5.008005;
 use strict;
 use warnings;
@@ -12,6 +12,7 @@ our $VERSION = '0.01';
 
 our @EXPORT = qw(
 	$OBT
+	$INSTALL_ISO_REGEX
 	&Name_Torrent
 	&Get_Files_and_Dirs
 	&justme
@@ -19,6 +20,7 @@ our @EXPORT = qw(
 
 my $config_file = '/etc/OpenBSDTorrents.conf';
 our $OBT = Config();
+our $INSTALL_ISO_REGEX = qr/install\d+\.iso/;
 
 sub Config
 {
