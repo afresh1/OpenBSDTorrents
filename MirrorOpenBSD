@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver: MirrorOpenBSD,v 1.3 2007/02/07 23:09:05 andrew Exp $
+# $RedRiver: MirrorOpenBSD,v 1.4 2007/10/01 20:17:23 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -16,23 +16,4 @@ if [ -e ${PIDFILE} ]; then
 fi
 echo $$ > ${PIDFILE}
 
-SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
-#SERVER=rsync://ftp3.usa.openbsd.org/ftp/
-
-rsync -az \
-	--delete --delete-excluded \
-	--verbose=1 --log-format="%o \`%f'%L %b %l" \
-	-f "exclude .*" \
-	-f "exclude ls-lR.gz" \
-	-f "exclude /OpenBGPD/" \
-	-f "exclude /OpenNTPD/" \
-	-f "exclude /OpenSSH/" \
-	-f "exclude /cvs/" \
-	-f "exclude /src/" \
-	-f "exclude /distfiles/" \
-	-f "exclude /patches/" \
-	-f "exclude /snapshots/packages/" \
-	-f "exclude /2\.?/" \
-	-f "exclude /3\.?/" \
-	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
-
+lftp -f ${OBT_DIR_HOME}/lftp-OpenBSD.script

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.11 2007/02/07 23:09:05 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.12 2007/10/01 20:17:23 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -17,18 +17,18 @@ my %Need_Update;
 
 my $last_dir = '';
 while (<>) {
-	print;
+	#print;
 	chomp;
-	if (my ($message, $file, $xfer, $size) = 
-	    m#(.*)\s+\`([^']+)'\s+(\d+)\s+(\d+)#) {
+	if (my ($message, $file) = m#(.*)\s+\`([^']+)'#) {
+		next if $message eq 'Mirroring directory';
 		next if $message eq 'Making directory';
-		next unless $xfer;
 
 		my $dir = '';
 		if ($file =~ m#^(.*)/([^/]+)#) {
 			($dir, $file) = ($1, $2);
 		}
-		#print "$message - $dir - $file\n";
+		#print "$message - ($last_dir) $dir - $file\n";
+		print "$message - $dir - $file\n";
 		if ($last_dir && $last_dir ne $dir) {
 			StartTorrent($last_dir);
 		}
@@ -43,6 +43,9 @@ StartTorrent($last_dir);
 # after the new ones are done, regen all, just to make sure
 sleep(1) while (keys %Kids > 0);
 StartTorrent('skip');
+
+# and wait for it to finish
+sleep(1) while (keys %Kids > 0);
 
 sub REAPER {
 	my $child;
@@ -59,6 +62,7 @@ sub StartTorrent
 	return undef unless $dir;
 	$dir =~ s/^.*$OBT->{BASENAME}\///;
 
+	print "Starting '$dir'\n";
 	my $should_fork = 1;
 
 	if ($dir eq 'skip') {
