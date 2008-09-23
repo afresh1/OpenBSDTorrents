@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.23 2007/10/01 20:17:23 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.24 2007/11/02 02:36:01 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -35,7 +35,7 @@ if ($response->is_success) {
             my ($name, $hash, $disabled) = split /\t/;
             next if $name eq 'File';
 
-            $name =~ s#^/torrents/##;
+            $name =~ s#.*/##;
             $server_torrents{$name}{$hash} = $disabled;
         }
     }
@@ -99,9 +99,8 @@ FILE: foreach my $name (keys %files) {
 	foreach my $epoch ( sort { $b <=> $a } keys %{ $files{$name} } ) {
 		#print "\t$epoch\n";
 		my $torrent = $files{$name}{$epoch}{file};
-
-		my $hash = $files{$name}{$epoch}{'details'}->info_hash;
-		$hash = unpack("H*", $hash);
+		my $hash = unpack("H*", $files{$name}{$epoch}{'details'}->info_hash );
+		#printf "LOCAL:  [%s] [%s]\n", $hash, $torrent;
 
 		$torrents{$torrent}{$hash} = $files{$name}{$epoch};
 
@@ -113,9 +112,9 @@ FILE: foreach my $name (keys %files) {
 
 foreach my $torrent (keys %server_torrents) {
 	foreach my $hash (keys %{ $server_torrents{$torrent} }) {
-		unless (
-			exists $torrents{$torrent}{$hash} ||
-			$server_torrents{$torrent}{$hash} == 1
+		#printf "SERVER: [%s] [%s]\n", $hash, $torrent;
+		if ((! exists $torrents{$torrent}{$hash}) &&
+		     $server_torrents{$torrent}{$hash} != 1
 		) {
 			Delete_Torrent($torrent, $hash);
 		}
@@ -193,7 +192,7 @@ sub Delete_Torrent
 	my $hash = shift;
 	die "No hash passed!" unless $hash;
 
-	print "Disabling $filename\n";
+	print "Removing $filename [$hash]\n";
 
 	my $response = $ua->post($OBT->{'URL_DELETE'}, {
 		username => $OBT->{UPLOAD_USER},
@@ -203,13 +202,19 @@ sub Delete_Torrent
 	}, Content_Type => 'form-data');
 
 	if ($response->is_success) {
-		#print $response->content;
-		if ($response->content =~ /Torrent was removed successfully/) {
-			print STDERR "Disabled $filename\n";
-		} else {
-			print STDERR "An error occoured removing $filename\n";
+		my ($result) = $response->content =~ /class="error"\>([^<]+)\</;
+
+		if ($result eq 'Torrent was removed successfully.') {
+			print STDERR "Removed $filename [$hash]\n";
 		}
-	} else {
-    		die $response->status_line;
+		elsif ($result) {
+			print STDERR "Error: $result (removing $filename [$hash])\n";
+		} 
+		else {
+			print STDERR "An unknown error occurred removing $filename [$hash]\n";
+		}
+	} 
+	else {
+    		die $response->status_line . " removing $filename [$hash]\n";
 	}
 }
