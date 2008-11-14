@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.23 2007/10/01 20:17:23 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.24 2007/11/02 02:36:01 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -79,6 +79,7 @@ foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 	closedir DIR;
 }
 
+#print Dump \%files;
 foreach my $name (keys %{ $files{torrent} }) {
 	next unless $name =~ /^$Name_Filter/;
 	#print "Checking $name\n";
@@ -92,7 +93,7 @@ foreach my $name (keys %{ $files{torrent} }) {
 			$files{torrent}{$name}{$epoch}{dir} 
 				eq $OBT->{DIR_TORRENT}
 		) {
-			#print "Skipping torrent for $name there is only one.\n";
+			print "Skipping torrent for $name there is only one.\n";
 			next;
 		}
 
@@ -134,6 +135,12 @@ foreach my $name (keys %{ $files{torrent} }) {
 
 		if (exists $keep{$name}) {
 			if (exists $keep{$name}{$hash}) {
+				if ( $keep{$name}{$hash}{epoch} == $epoch ) {
+					next;
+				}
+				print "Removing [$name] [$hash]\n\t",
+					 $keep{$name}{$hash}{path},
+					"\n";
 				push @delete, $keep{$name}{$hash};
 				delete $files{torrent}{
 					$keep{$name}{$hash}{name}
@@ -142,11 +149,20 @@ foreach my $name (keys %{ $files{torrent} }) {
 				};
 				$keep{$name}{$hash} = 
 					$files{torrent}{$name}{$epoch};
+				print "Keeping additional instance of  [$name] [$hash]\n\t",
+					 $keep{$name}{$hash}{path},
+					"\n";
 			} else {
+				print "Removing old [$name] [$hash]\n\t",
+					 $keep{$name}{$hash}{path},
+					"\n";
 				push @delete, $files{torrent}{$name}{$epoch};
 				delete $files{torrent}{$name}{$epoch};
 			}
 		} else { 
+			print "Keeping first instance of $name [$hash]\n\t", 
+				$files{torrent}{$name}{$epoch}{path},
+				"\n";
 			$keep{$name}{$hash} = 
 				$files{torrent}{$name}{$epoch};
 
