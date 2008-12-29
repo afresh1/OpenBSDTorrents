@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.24 2007/11/02 02:36:01 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.25 2008/09/23 16:35:45 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -114,6 +114,7 @@ foreach my $torrent (keys %server_torrents) {
 	foreach my $hash (keys %{ $server_torrents{$torrent} }) {
 		#printf "SERVER: [%s] [%s]\n", $hash, $torrent;
 		if ((! exists $torrents{$torrent}{$hash}) &&
+		     defined $server_torrents{$torrent}{$hash} &&
 		     $server_torrents{$torrent}{$hash} != 1
 		) {
 			Delete_Torrent($torrent, $hash);
