@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.12 2007/10/01 20:17:23 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.13 2007/11/02 02:35:07 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -19,16 +19,22 @@ my $last_dir = '';
 while (<>) {
 	#print;
 	chomp;
-	if (my ($message, $file) = m#(.*)\s+\`([^']+)'#) {
-		next if $message eq 'Mirroring directory';
-		next if $message eq 'Making directory';
+	# *** This requires --log-format="%t [%p] %o %f %l" on the rsync command
+	if (my ($year,  $mon,   $mday,     $time,
+                $pid,        $oper,    $file,  $size) = m#^
+		(\d{4})/(\d{2})/(\d{2}) \s (\d{2}:\d{2}:\d{2}) \s
+		\[(\d+)\] \s (\S+) \s  (.+) \s (\d+)
+		$#xms) {
 
-		my $dir = '';
-		if ($file =~ m#^(.*)/([^/]+)#) {
-			($dir, $file) = ($1, $2);
-		}
-		#print "$message - ($last_dir) $dir - $file\n";
-		print "$message - $dir - $file\n";
+		$file =~ s/^.*$OBT->{BASENAME}\/?//;
+
+        	my ($dir, $file) = $file =~ m#^(.*)/([^/]+)#;
+		#print "$oper - ($last_dir) [$dir]/[$file]\n";
+
+		next unless $oper eq 'recv';
+		next unless $size;
+		next unless $dir;
+
 		if ($last_dir && $last_dir ne $dir) {
 			StartTorrent($last_dir);
 		}
@@ -54,29 +60,37 @@ sub REAPER {
 		delete $Kids{$child};
 	}
 	$SIG{CHLD} = \&REAPER;  # still loathe sysV
+
+	StartTorrent('waiting');
 }
 
 sub StartTorrent
 {
 	my $dir = shift;
 	return undef unless $dir;
-	$dir =~ s/^.*$OBT->{BASENAME}\///;
-
-	print "Starting '$dir'\n";
+	
 	my $should_fork = 1;
 
 	if ($dir eq 'skip') {
 		#$dir = '';
 		%Need_Update = ();
 		$should_fork = 0;
-	} else {
+	} 
+	elsif ($dir eq 'waiting') {
+		return if ! %Need_Update;
+
+		my $count = scalar keys %Need_Update;
+		print "Need to make $count waiting torrents\n";
+	}
+	else {
+		print "Need to make torrent for '$dir'\n";
 		$dir = $OBT->{BASENAME} . "/$dir";
 		$Need_Update{$dir} = 1;
 	}
 
 	if (keys %Kids > 0) {
 		print "Not making torrents for $dir now, already running\n";
-		return undef;
+		return;
 	}
 
 	my @now_update = keys %Need_Update;
@@ -87,7 +101,7 @@ sub StartTorrent
 
 		if ($pid) {
 			$Kids{$pid} = 1;
-			return undef;
+			return;
 		}
 
 	}
@@ -99,4 +113,5 @@ sub StartTorrent
 		push @now_update, $dir;
 	}
 	exec($OBT->{DIR_HOME} . '/regen.sh', @now_update);
+	exit;
 }
