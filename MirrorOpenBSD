@@ -16,4 +16,28 @@ if [ -e ${PIDFILE} ]; then
 fi
 echo $$ > ${PIDFILE}
 
-lftp -f ${OBT_DIR_HOME}/lftp-OpenBSD.script
+SERVER=rsync://ftp3.usa.openbsd.org/ftp/
+#SERVER=rsync://ftp5.usa.openbsd.org/ftp/
+#SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
+#SERVER=rsync://openbsd.mirror.frontiernet.net/OpenBSD
+
+#	--dry-run \
+rsync -a \
+	--delete --delete-excluded \
+	--verbose=1 --log-format="%t [%p] %o %f %l" \
+	-f "exclude .*" \
+	-f "exclude ls-lR.gz" \
+	-f "exclude /OpenBGPD/" \
+	-f "exclude /OpenNTPD/" \
+	-f "exclude /OpenSSH/" \
+	-f "exclude /cvs/" \
+	-f "exclude /src/" \
+	-f "exclude /distfiles/" \
+	-f "exclude /patches/" \
+	-f "exclude /snapshots/packages/" \
+	-f "exclude /2.?/" \
+	-f "exclude /3.?/" \
+	-f "exclude /4.[01234]/" \
+	-f "exclude /4.7/packages/" \
+	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
+
