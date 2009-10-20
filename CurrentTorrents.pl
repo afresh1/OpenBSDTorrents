@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.24 2007/11/02 02:36:01 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.25 2008/11/14 18:18:31 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -80,7 +80,7 @@ foreach my $DIR ($OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT}) {
 }
 
 #print Dump \%files;
-foreach my $name (keys %{ $files{torrent} }) {
+foreach my $name (sort keys %{ $files{torrent} }) {
 	next unless $name =~ /^$Name_Filter/;
 	#print "Checking $name\n";
 
@@ -93,7 +93,7 @@ foreach my $name (keys %{ $files{torrent} }) {
 			$files{torrent}{$name}{$epoch}{dir} 
 				eq $OBT->{DIR_TORRENT}
 		) {
-			print "Skipping torrent for $name there is only one.\n";
+			#print "Skipping torrent for $name there is only one.\n";
 			next;
 		}
 
@@ -153,9 +153,11 @@ foreach my $name (keys %{ $files{torrent} }) {
 					 $keep{$name}{$hash}{path},
 					"\n";
 			} else {
-				print "Removing old [$name] [$hash]\n\t",
-					 $keep{$name}{$hash}{path},
-					"\n";
+				print "Removing old [$name] [$hash]\n";
+				if ( $keep{$name}{$hash}{path} ) {
+					print "\t", $keep{$name}{$hash}{path}, 
+						"\n";
+				}
 				push @delete, $files{torrent}{$name}{$epoch};
 				delete $files{torrent}{$name}{$epoch};
 			}
@@ -192,8 +194,8 @@ foreach my $name (keys %{ $files{$OBT->{META_EXT} } }) {
 #print Dump \%keep;
 foreach my $name (keys %keep) {
 	foreach my $hash (keys %{ $keep{$name} }) {
-		my $file = $keep{$name}{$hash}{file};
-		my $dir  = $keep{$name}{$hash}{dir };
+		my $file = $keep{$name}{$hash}{file} || q{};
+		my $dir  = $keep{$name}{$hash}{dir } || q{};
 		if ($dir eq $OBT->{DIR_NEW_TORRENT}) {
 			print "Moving $file to current torrents\n";
 			rename("$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file)
