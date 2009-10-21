@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver: MirrorOpenBSD,v 1.4 2007/10/01 20:17:23 andrew Exp $
+# $RedRiver: MirrorOpenBSD,v 1.6 2009/10/20 19:05:58 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -35,9 +35,8 @@ rsync -a \
 	-f "exclude /distfiles/" \
 	-f "exclude /patches/" \
 	-f "exclude /snapshots/packages/" \
-	-f "exclude /2.?/" \
-	-f "exclude /3.?/" \
+	-f "exclude /[23].?/" \
 	-f "exclude /4.[01234]/" \
-	-f "exclude /4.7/packages/" \
+	-f "exclude /4.[789]/packages/" \
 	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
 
