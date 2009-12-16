@@ -1,9 +1,9 @@
-# $RedRiver: Cached.pm,v 1.11 2005/05/21 00:05:13 andrew Exp $
+# $RedRiver: Cached.pm,v 1.12 2006/05/15 18:47:04 andrew Exp $
 use strict;
 
 package BT::MetaInfo::Cached;
 
-require 5.6.0;
+require 5.0060;
 use vars qw( $VERSION @ISA );
 
 use Cache::FileCache;
