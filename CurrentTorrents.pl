@@ -30,7 +30,6 @@ my %Possible_Torrents;
 Process_Dir( $OBT->{DIR_FTP} );
 
 my %files;
-my %keep;
 my @delete;
 foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
     opendir DIR, $DIR
@@ -84,6 +83,8 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
 }
 
 #print Dump \%files;
+
+my %keep;
 foreach my $name ( sort keys %{ $files{torrent} } ) {
     next unless $name =~ /^$Name_Filter/;
 
@@ -139,36 +140,32 @@ foreach my $name ( sort keys %{ $files{torrent} } ) {
 
         $files{torrent}{$name}{$epoch}{info_hash} = $hash;
 
-        if ( exists $keep{$name} ) {
-            if ( exists $keep{$name}{$hash} ) {
-                if ( $keep{$name}{$hash}{epoch} == $epoch ) {
-                    next;
-                }
-                print "Removing [$name] [$hash]\n\t",
-                    $keep{$name}{$hash}{path},
-                    "\n";
-                push @delete, $keep{$name}{$hash};
-                delete $files{torrent}{ $keep{$name}{$hash}{name} }
-                    { $keep{$name}{$hash}{epoch} };
-                $keep{$name}{$hash} = $files{torrent}{$name}{$epoch};
-                print "Keeping additional instance of  [$name] [$hash]\n\t",
-                    $keep{$name}{$hash}{path},
-                    "\n";
+        if ( exists $keep{$hash} ) {
+            if ( $keep{$hash}{epoch} == $epoch ) {
+                next;
             }
-            else {
-                print "Removing old [$name] [$hash]\n";
-                if ( $keep{$name}{$hash}{path} ) {
-                    print "\t", $keep{$name}{$hash}{path}, "\n";
-                }
-                push @delete, $files{torrent}{$name}{$epoch};
-                delete $files{torrent}{$name}{$epoch};
+            print "Removing [$name] [$hash]\n\t", $keep{$hash}{path}, "\n";
+            push @delete, $keep{$hash};
+            delete $files{torrent}{ $keep{$hash}{name} }
+                { $keep{$hash}{epoch} };
+            $keep{$hash} = $files{torrent}{$name}{$epoch};
+            print "Keeping additional instance of  [$name] [$hash]\n\t",
+                $keep{$hash}{path},
+                "\n";
+        }
+        else {
+            print "Removing old [$name] [$hash]\n";
+            if ( $keep{$hash}{path} ) {
+                print "\t", $keep{$hash}{path}, "\n";
             }
+            push @delete, $files{torrent}{$name}{$epoch};
+            delete $files{torrent}{$name}{$epoch};
         }
         else {
             print "Keeping first instance of $name [$hash]\n\t",
                 $files{torrent}{$name}{$epoch}{path},
                 "\n";
-            $keep{$name}{$hash} = $files{torrent}{$name}{$epoch};
+            $keep{$hash} = $files{torrent}{$name}{$epoch};
 
         }
     }
@@ -193,25 +190,22 @@ foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
 }
 
 #print Dump \%keep;
-foreach my $name ( keys %keep ) {
-    foreach my $hash ( keys %{ $keep{$name} } ) {
-        my $file = $keep{$name}{$hash}{file} || q{};
-        my $dir  = $keep{$name}{$hash}{dir}  || q{};
-        if ( $dir eq $OBT->{DIR_NEW_TORRENT} ) {
-            print "Moving $file to current torrents\n";
-            rename( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
-                or die "Couldn't rename '$file': $!";
+foreach my $hash ( keys %keep ) {
+    my $file = $keep{$hash}{file} || q{};
+    my $dir  = $keep{$hash}{dir}  || q{};
+    if ( $dir eq $OBT->{DIR_NEW_TORRENT} ) {
+        print "Moving $file to current torrents\n";
+        rename( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
+            or die "Couldn't rename '$file': $!";
 
-            my $name  = $keep{$name}{$hash}{name};
-            my $epoch = $keep{$name}{$hash}{epoch};
+        my $name  = $keep{$hash}{name};
+        my $epoch = $keep{$hash}{epoch};
 
-            if ( exists $files{txt}{$name}{$epoch} ) {
-                my $m_file = $files{txt}{$name}{$epoch}{file};
-                my $m_dir  = $files{txt}{$name}{$epoch}{dir};
-                rename( "$m_dir/$m_file",
-                    $OBT->{DIR_TORRENT} . "/" . $m_file )
-                    or die "Couldn't rename '$m_file': $!";
-            }
+        if ( exists $files{txt}{$name}{$epoch} ) {
+            my $m_file = $files{txt}{$name}{$epoch}{file};
+            my $m_dir  = $files{txt}{$name}{$epoch}{dir};
+            rename( "$m_dir/$m_file", $OBT->{DIR_TORRENT} . "/" . $m_file )
+                or die "Couldn't rename '$m_file': $!";
         }
     }
 }
