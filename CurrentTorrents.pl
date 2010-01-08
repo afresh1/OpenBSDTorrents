@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.26 2009/10/20 19:04:28 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.28 2010/01/05 19:55:22 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -7,6 +7,9 @@ use diagnostics;
 use Time::Local;
 use Fcntl ':flock';
 use File::Basename;
+
+use Transmission::Client;
+use Transmission::Utils;
 
 #use YAML;
 
@@ -85,87 +88,93 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
 #print Dump \%files;
 
 my %keep;
+my %seen;
 foreach my $name ( sort keys %{ $files{torrent} } ) {
     next unless $name =~ /^$Name_Filter/;
 
+    #next if $name =~ /_packages_/xms;
     #print "Checking $name\n";
 
-    foreach my $epoch ( sort { $b <=> $a } keys %{ $files{torrent}{$name} } )
-    {
+    my $cn = $files{torrent}{$name};
 
-        #print "\t$epoch\n";
-        my $torrent = $files{torrent}{$name}{$epoch}{path};
+EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
+        my $ct = $cn->{$epoch};
+        my $cf = $ct->{path};
 
-        if ( keys %{ $files{torrent}{$name} } == 1
-            && $files{torrent}{$name}{$epoch}{dir} eq $OBT->{DIR_TORRENT} )
-        {
-
-            #print "Skipping torrent for $name there is only one.\n";
-            next;
-        }
+        #print "\t$epoch - $cf\n";
 
         my $t;
         eval {
-            $t = BT::MetaInfo::Cached->new(
-                $torrent,
-                {   cache_root => '/tmp/OBTFileCache'
-
-                        #$OBT->{DIR_HOME} . '/FileCache'
-                }
-            );
+            $t
+                = BT::MetaInfo::Cached->new( $cf,
+                { cache_root => '/tmp/OBTFileCache' } );
         };
 
         if ($@) {
-            warn "Error reading torrent $torrent\n";
-            push @delete, $files{torrent}{$name}{$epoch};
-            delete $files{torrent}{$name}{$epoch};
-            next;
+            warn "Error reading torrent $cf\n";
+            push @delete, $ct;
+            delete $cn->{$epoch};
+            next EPOCH;
         }
 
-        $files{torrent}{$name}{$epoch}{comment} = $t->{comment};
+        $ct->{comment} = $t->{comment};
         my ($path) = $t->{comment} =~ /($OBT->{BASENAME}\/[^\n]+)\n/s;
 
-        unless ( -e $OBT->{DIR_FTP} . "/$path" ) {
+        if ( !-e $OBT->{DIR_FTP} . "/$path" ) {
             print
-                "Deleting $files{torrent}{$name}{$epoch}{file} the path ($path) doesn't exist.\n";
-            push @delete, $files{torrent}{$name}{$epoch};
-            delete $files{torrent}{$name}{$epoch};
-            next;
+                'Deleting ',
+                $cn->{$epoch}{file}, ' the path (', $path,
+                ") doesn't exist.\n";
+            push @delete, $ct;
+            delete $cn->{$epoch};
+            next EPOCH;
         }
 
-        my $hash = $t->info_hash;
-        $hash = unpack( "H*", $hash );
+        my $hash = unpack( "H*", $t->info_hash );
+        $ct->{info_hash} = $hash;
 
         undef $t;
 
-        $files{torrent}{$name}{$epoch}{info_hash} = $hash;
-
-        if ( exists $keep{$hash} ) {
-            if ( $keep{$hash}{epoch} == $epoch ) {
-                next;
-            }
-            print "Removing [$name] [$hash]\n\t", $keep{$hash}{path}, "\n";
-            push @delete, $keep{$hash};
-            delete $files{torrent}{ $keep{$hash}{name} }
-                { $keep{$hash}{epoch} };
-            $keep{$hash} = $files{torrent}{$name}{$epoch};
-            print "Keeping additional instance of  [$name] [$hash]\n\t",
-                $keep{$hash}{path},
-                "\n";
-        }
-        else {
-            print "Removing old [$name] [$hash]\n";
+        if ( $seen{$name} && $seen{$name} ne $hash ) {
+            print "Removing older [$name] [$hash]\n";
             if ( $keep{$hash}{path} ) {
                 print "\t", $keep{$hash}{path}, "\n";
             }
-            push @delete, $files{torrent}{$name}{$epoch};
-            delete $files{torrent}{$name}{$epoch};
+            push @delete, $ct;
+            delete $cn->{$epoch};
+            next EPOCH;
+        }
+        $seen{$name} = $hash;
+
+        if ( keys %{$cn} == 1 && $ct->{dir} eq $OBT->{DIR_TORRENT} ) {
+            $keep{$hash} = $ct;
+
+            #print "Keeping only instance of [$name] [$hash]\n\t",
+            #    $ct->{path},
+            #    "\n";
+            next EPOCH;
+        }
+        elsif ( $keep{$hash} ) {
+            if ( $keep{$hash}{epoch} == $epoch ) {
+                next EPOCH;
+            }
+
+            print "Removing duplicate [$name] [$hash]\n\t",
+                $keep{$hash}{path}, "\n";
+            push @delete, $keep{$hash};
+            delete $files{torrent}{ $keep{$hash}{name} }
+                { $keep{$hash}{epoch} };
+
+            $keep{$hash} = $ct;
+            print "Keeping additional instance of [$name] [$hash]\n\t",
+                $ct->{path},
+                "\n";
         }
         else {
-            print "Keeping first instance of $name [$hash]\n\t",
-                $files{torrent}{$name}{$epoch}{path},
+            $keep{$hash} = $ct;
+            print "Keeping first instance of [$name] [$hash]\n\t",
+                $ct->{path},
                 "\n";
-            $keep{$hash} = $files{torrent}{$name}{$epoch};
 
         }
     }
@@ -174,18 +183,19 @@ foreach my $name ( sort keys %{ $files{torrent} } ) {
 #print Dump \%files, \%keep, \@delete;
 #exit;
 
-foreach (@delete) {
-    print "Deleting '$_->{path}'\n";
-    unlink $_->{path} or die "Couldn't unlink $_->{path}";
-}
+my $client = Transmission::Client->new;
+my %seeding;
+foreach my $torrent ( @{ $client->torrents } ) {
 
-foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
-    foreach my $epoch ( keys %{ $files{ $OBT->{META_EXT} }{$name} } ) {
-        unless ( exists $files{torrent}{$name}{$epoch} ) {
-            my $path = $files{ $OBT->{META_EXT} }{$name}{$epoch}{path};
-            print "Unlinking '$path'\n";
-            unlink $path or die "couldn't unlink '$path': $!";
-        }
+    #my $status = Transmission::Utils::from_numeric_status($torrent->status);
+    my $hash = $torrent->hash_string;
+    if ( exists $keep{$hash} ) {
+        $seeding{$hash} = $torrent;
+    }
+    else {
+        print "No longer seeding [$hash]\n";
+        $torrent->stop or warn $torrent->error_string;
+        $client->remove( $torrent->id ) or warn $client->error;
     }
 }
 
@@ -200,6 +210,7 @@ foreach my $hash ( keys %keep ) {
 
         my $name  = $keep{$hash}{name};
         my $epoch = $keep{$hash}{epoch};
+        $dir = $OBT->{DIR_TORRENT};
 
         if ( exists $files{txt}{$name}{$epoch} ) {
             my $m_file = $files{txt}{$name}{$epoch}{file};
@@ -208,7 +219,47 @@ foreach my $hash ( keys %keep ) {
                 or die "Couldn't rename '$m_file': $!";
         }
     }
+
+    if ( !$seeding{$hash} ) {
+        print "Starting seed of [$file] [$hash]\n";
+        if (!$client->add(
+                filename     => "$dir/$file",
+                download_dir => $OBT->{DIR_FTP},
+            )
+            )
+        {
+
+            #warn $client->error, ": $dir/$file\n";
+            print "Removing invalid torrent\n\t", $keep{$hash}{path}, "\n";
+            push @delete, $keep{$hash};
+            delete $files{torrent}{ $keep{$hash}{name} }
+                { $keep{$hash}{epoch} };
+        }
+    }
 }
+
+foreach (@delete) {
+    if ( $_->{path} ) {
+        print "Deleting '$_->{path}'\n";
+        unlink $_->{path} or die "Couldn't unlink $_->{path}";
+    }
+    else {
+        use Data::Dumper;
+        print Dumper $_;
+    }
+}
+
+foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
+    foreach my $epoch ( keys %{ $files{ $OBT->{META_EXT} }{$name} } ) {
+        unless ( exists $files{torrent}{$name}{$epoch} ) {
+            my $path = $files{ $OBT->{META_EXT} }{$name}{$epoch}{path};
+            print "Unlinking '$path'\n";
+            unlink $path or die "couldn't unlink '$path': $!";
+        }
+    }
+}
+
+$client->start;
 
 sub Process_Dir {
     my $basedir = shift;
