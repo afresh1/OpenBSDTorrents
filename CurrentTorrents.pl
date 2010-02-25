@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.28 2010/01/05 19:55:22 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.29 2010/01/08 17:18:35 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -97,7 +97,7 @@ foreach my $name ( sort keys %{ $files{torrent} } ) {
 
     my $cn = $files{torrent}{$name};
 
-EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
+EPOCH: foreach my $epoch ( sort { $a <=> $b } keys %{$cn} ) {
         my $ct = $cn->{$epoch};
         my $cf = $ct->{path};
 
