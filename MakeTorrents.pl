@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -T
-#$RedRiver: MakeTorrents.pl,v 1.21 2006/11/06 23:17:59 andrew Exp $
+#$RedRiver: MakeTorrents.pl,v 1.22 2007/11/02 02:36:01 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -92,7 +92,7 @@ sub Make_Torrent
 
         print "Creating $torrent\n";
 
-	$comment .= "Created by andrew fresh (andrew\@mad-techies.org)\n" .
+	$comment .= "Created by andrew fresh (andrew\@afresh1.com)\n" .
                       "http://OpenBSD.somedomain.net/";
 
 	eval { btmake($torrent, $comment, \@good_files); };
