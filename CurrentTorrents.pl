@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.29 2010/01/08 17:18:35 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.30 2010/02/25 18:03:01 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -78,7 +78,7 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
         if ( $name =~ m/\A $OBT->{BASENAME} /xms
             && !exists $Possible_Torrents{$name} )
         {
-            print "Would remove $_\n";
+            #print "Would remove $_\n";
             push @delete, $files{$ext}{$name}{$epoch};
         }
     }
@@ -92,12 +92,13 @@ my %seen;
 foreach my $name ( sort keys %{ $files{torrent} } ) {
     next unless $name =~ /^$Name_Filter/;
 
+    #next if $name !~ /songs/xms;
     #next if $name =~ /_packages_/xms;
     #print "Checking $name\n";
 
     my $cn = $files{torrent}{$name};
 
-EPOCH: foreach my $epoch ( sort { $a <=> $b } keys %{$cn} ) {
+EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
         my $ct = $cn->{$epoch};
         my $cf = $ct->{path};
 
@@ -113,7 +114,6 @@ EPOCH: foreach my $epoch ( sort { $a <=> $b } keys %{$cn} ) {
         if ($@) {
             warn "Error reading torrent $cf\n";
             push @delete, $ct;
-            delete $cn->{$epoch};
             next EPOCH;
         }
 
@@ -126,7 +126,6 @@ EPOCH: foreach my $epoch ( sort { $a <=> $b } keys %{$cn} ) {
                 $cn->{$epoch}{file}, ' the path (', $path,
                 ") doesn't exist.\n";
             push @delete, $ct;
-            delete $cn->{$epoch};
             next EPOCH;
         }
 
@@ -136,23 +135,15 @@ EPOCH: foreach my $epoch ( sort { $a <=> $b } keys %{$cn} ) {
         undef $t;
 
         if ( $seen{$name} && $seen{$name} ne $hash ) {
-            print "Removing older [$name] [$hash]\n";
-            if ( $keep{$hash}{path} ) {
-                print "\t", $keep{$hash}{path}, "\n";
-            }
+            print "Removing older [$name] [$hash]\n\t",
+                $ct->{path},
+                "\n";
+            $ct->{reason} = 'older';
             push @delete, $ct;
-            delete $cn->{$epoch};
             next EPOCH;
         }
-        $seen{$name} = $hash;
-
-        if ( keys %{$cn} == 1 && $ct->{dir} eq $OBT->{DIR_TORRENT} ) {
-            $keep{$hash} = $ct;
-
-            #print "Keeping only instance of [$name] [$hash]\n\t",
-            #    $ct->{path},
-            #    "\n";
-            next EPOCH;
+        elsif ( keys %{$cn} == 1 && $ct->{dir} eq $OBT->{DIR_TORRENT} ) {
+            $ct->{reason} = 'only';
         }
         elsif ( $keep{$hash} ) {
             if ( $keep{$hash}{epoch} == $epoch ) {
@@ -161,26 +152,23 @@ EPOCH: foreach my $epoch ( sort { $a <=> $b } keys %{$cn} ) {
 
             print "Removing duplicate [$name] [$hash]\n\t",
                 $keep{$hash}{path}, "\n";
-            push @delete, $keep{$hash};
-            delete $files{torrent}{ $keep{$hash}{name} }
-                { $keep{$hash}{epoch} };
 
-            $keep{$hash} = $ct;
-            print "Keeping additional instance of [$name] [$hash]\n\t",
-                $ct->{path},
-                "\n";
+            $keep{$hash}{reason} = 'duplicate';
+            $ct->{reason} = 'duplicate';
+
+            push @delete, $keep{$hash};
         }
         else {
-            $keep{$hash} = $ct;
-            print "Keeping first instance of [$name] [$hash]\n\t",
-                $ct->{path},
-                "\n";
-
+            $ct->{reason} = 'first';
         }
+
+        $keep{$hash} = $ct;
+        $seen{$name} = $hash;
     }
 }
 
 #print Dump \%files, \%keep, \@delete;
+#print Dump \%keep, \@delete;
 #exit;
 
 my $client = Transmission::Client->new;
@@ -203,13 +191,21 @@ foreach my $torrent ( @{ $client->torrents } ) {
 foreach my $hash ( keys %keep ) {
     my $file = $keep{$hash}{file} || q{};
     my $dir  = $keep{$hash}{dir}  || q{};
+
+    my $name  = $keep{$hash}{name};
+    my $epoch = $keep{$hash}{epoch};
+    my $reason = $keep{$hash}{reason};
+
+    if ($reason && $reason ne 'only') {
+        print "Keeping $reason instance of [$name] [$hash]\n",
+            "\t", $file, "\n";
+    }
+
     if ( $dir eq $OBT->{DIR_NEW_TORRENT} ) {
         print "Moving $file to current torrents\n";
         rename( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
             or die "Couldn't rename '$file': $!";
 
-        my $name  = $keep{$hash}{name};
-        my $epoch = $keep{$hash}{epoch};
         $dir = $OBT->{DIR_TORRENT};
 
         if ( exists $files{txt}{$name}{$epoch} ) {
@@ -232,8 +228,6 @@ foreach my $hash ( keys %keep ) {
             #warn $client->error, ": $dir/$file\n";
             print "Removing invalid torrent\n\t", $keep{$hash}{path}, "\n";
             push @delete, $keep{$hash};
-            delete $files{torrent}{ $keep{$hash}{name} }
-                { $keep{$hash}{epoch} };
         }
     }
 }
@@ -242,6 +236,7 @@ foreach (@delete) {
     if ( $_->{path} ) {
         print "Deleting '$_->{path}'\n";
         unlink $_->{path} or die "Couldn't unlink $_->{path}";
+        delete $files{torrent}{ $_->{name} }{ $_->{epoch} };
     }
     else {
         use Data::Dumper;
@@ -268,14 +263,10 @@ sub Process_Dir {
     if (@$files) {
         my $dir = $basedir;
         $dir =~ s/^$OBT->{DIR_FTP}\///;
-        my $torrent = Name_Torrent($dir);
-        $torrent =~ s/-.*$//;
-        $Possible_Torrents{$torrent} = 1;
+        Make_Possible($dir);
         foreach my $file (@$files) {
             if ( $file =~ /$INSTALL_ISO_REGEX/ ) {
-                $torrent = Name_Torrent("$dir/$file");
-                $torrent =~ s/-.*$//;
-                $Possible_Torrents{$torrent} = 1;
+                Make_Possible("$dir/$file");
             }
         }
     }
@@ -287,3 +278,12 @@ sub Process_Dir {
     }
 }
 
+sub Make_Possible {
+    my ($path) = @_;
+
+    my $torrent = Name_Torrent($path);
+    $torrent =~ s/-.*$//;
+    $Possible_Torrents{$torrent} = 1;
+   
+    return $torrent;
+}
