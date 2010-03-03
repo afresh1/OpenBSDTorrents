@@ -1,5 +1,5 @@
 package OpenBSDTorrents;
-#$RedRiver: OpenBSDTorrents.pm,v 1.9 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: OpenBSDTorrents.pm,v 1.10 2007/11/02 02:36:01 andrew Exp $
 use 5.008005;
 use strict;
 use warnings;
@@ -37,6 +37,7 @@ sub Config
 		# bit safer, but I can't think of what would work here.
 		if ($val =~ /^(.*)$/) {
 			$config{$name} = $1;
+			$config{$name} =~ s/^['"]|["']$//gxms;
 		}
 	}
 	close FILE;
@@ -63,22 +64,25 @@ sub Get_Files_and_Dirs
 	opendir DIR, $basedir or die "Couldn't opendir $basedir: $!";
 	my @contents = sort grep { ! /^\.\.$/ } grep { ! /^\.$/ } readdir DIR;
 	closedir DIR;
-	my @dirs  = grep { -d "$basedir/$_" } @contents;
 
-	my %dirs; # lookup table
-	my @files;# answer
-
-	# build lookup table
-	@dirs{@dirs} = ();
-
-	foreach my $item (@contents) {
-    		push(@files, $item) unless exists $dirs{$item};
+	my @dirs;
+	my @files;
+	ITEM: foreach my $item (@contents) {
+		if ( -d "$basedir/$item" ) {
+			if ( $OBT->{SKIP_DIRS} 
+			  && $item =~ /$OBT->{SKIP_DIRS}/) {
+				next ITEM;
+			}
+			push @dirs, $item;
+		}
+		else {
+			if ( $OBT->{SKIP_FILES} 
+                         && $item =~ /$OBT->{SKIP_FILES}/) {
+				next ITEM;
+			}
+    			push @files, $item;
+		}
 	}
-
-	@dirs  = grep { ! /$OBT->{SKIP_DIRS}/  } @dirs  
-		if $OBT->{SKIPDIRS};
-	@files = grep { ! /$OBT->{SKIP_FILES}/ } @files 
-		if $OBT->{SKIP_FILES};
 
 	return \@dirs, \@files;
 }
