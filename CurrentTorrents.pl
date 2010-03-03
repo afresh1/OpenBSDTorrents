@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.32 2010/03/03 18:13:07 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.33 2010/03/03 18:15:31 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -217,7 +217,7 @@ foreach my $hash ( keys %keep ) {
     }
 
     if ( !$seeding{$hash} ) {
-        print "Starting seed of $reason[$file] [$hash]\n";
+        print 'Starting seed of ' . $reason . "[$file] [$hash]\n";
         if (!$client->add(
                 filename     => "$dir/$file",
                 download_dir => $OBT->{DIR_FTP},
