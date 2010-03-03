@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.30 2010/02/25 18:03:01 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.31 2010/02/26 22:58:20 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -196,10 +196,10 @@ foreach my $hash ( keys %keep ) {
     my $epoch = $keep{$hash}{epoch};
     my $reason = $keep{$hash}{reason};
 
-    if ($reason && $reason ne 'only') {
-        print "Keeping $reason instance of [$name] [$hash]\n",
-            "\t", $file, "\n";
-    }
+    #if ($reason && $reason ne 'only') {
+    #    print "Keeping $reason instance of [$file] [$hash]\n",
+    #        "\t", $file, "\n";
+    #}
 
     if ( $dir eq $OBT->{DIR_NEW_TORRENT} ) {
         print "Moving $file to current torrents\n";
