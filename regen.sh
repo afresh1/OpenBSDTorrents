@@ -1,5 +1,5 @@
 #!/bin/sh
-#$RedRiver: regen.sh,v 1.7 2005/06/01 18:19:06 andrew Exp $
+#$RedRiver: regen.sh,v 1.8 2006/05/15 18:47:04 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -10,7 +10,7 @@ if [ -e ${PIDFILE} ]; then
         PID=`head -1 ${PIDFILE}`
         kill -0 ${PID} 2> /dev/null
         if [ $? -eq 0 ]; then
-                echo Already running
+                echo $0 Already running
                 exit 1
         fi
 fi

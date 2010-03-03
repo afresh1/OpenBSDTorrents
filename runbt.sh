@@ -1,5 +1,5 @@
 #!/bin/sh
-#$RedRiver: runbt.sh,v 1.15 2006/05/27 04:31:48 andrew Exp $
+#$RedRiver: runbt.sh,v 1.16 2006/07/24 18:03:53 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 LOGFILE=/home/torrentseeder/runbt.log
@@ -11,7 +11,7 @@ if [ -e ${PIDFILE} ]; then
         PID=`head -1 ${PIDFILE}`
         kill -0 ${PID} 2> /dev/null
         if [ $? -eq 0 ]; then
-                echo Already running
+                echo $0 Already running
                 exit 1
         fi
 fi

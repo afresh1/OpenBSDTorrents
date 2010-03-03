@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver: MirrorOpenBSD,v 1.7 2009/10/21 18:04:59 andrew Exp $
+# $RedRiver: MirrorOpenBSD,v 1.8 2010/01/05 19:43:16 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -10,7 +10,7 @@ if [ -e ${PIDFILE} ]; then
 	PID=`head -1 ${PIDFILE}`
 	kill -0 ${PID} 2> /dev/null
 	if [ $? -eq 0 ]; then
-		echo Already running
+		echo $0 Already running
 		exit 1
 	fi
 fi
