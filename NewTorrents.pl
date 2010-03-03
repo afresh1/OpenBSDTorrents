@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.13 2007/11/02 02:35:07 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.14 2009/10/20 19:03:25 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -80,10 +80,10 @@ sub StartTorrent
 		return if ! %Need_Update;
 
 		my $count = scalar keys %Need_Update;
-		print "Need to make $count waiting torrents\n";
+		print "Have $count waiting torrents\n";
 	}
 	else {
-		print "Need to make torrent for '$dir'\n";
+		#print "Need to make torrent for '$dir'\n";
 		$dir = $OBT->{BASENAME} . "/$dir";
 		$Need_Update{$dir} = 1;
 	}
