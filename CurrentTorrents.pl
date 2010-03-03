@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.31 2010/02/26 22:58:20 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.32 2010/03/03 18:13:07 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -194,7 +194,7 @@ foreach my $hash ( keys %keep ) {
 
     my $name  = $keep{$hash}{name};
     my $epoch = $keep{$hash}{epoch};
-    my $reason = $keep{$hash}{reason};
+    my $reason = $keep{$hash}{reason} ? $keep{$hash}{reason} . q{ } : q{};
 
     #if ($reason && $reason ne 'only') {
     #    print "Keeping $reason instance of [$file] [$hash]\n",
@@ -217,7 +217,7 @@ foreach my $hash ( keys %keep ) {
     }
 
     if ( !$seeding{$hash} ) {
-        print "Starting seed of [$file] [$hash]\n";
+        print "Starting seed of $reason[$file] [$hash]\n";
         if (!$client->add(
                 filename     => "$dir/$file",
                 download_dir => $OBT->{DIR_FTP},
