@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -T
-#$RedRiver: MakeTorrents.pl,v 1.22 2007/11/02 02:36:01 andrew Exp $
+#$RedRiver: MakeTorrents.pl,v 1.23 2010/02/25 17:54:13 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -150,7 +150,7 @@ sub btmake {
     #}
     $t->piece_length($piece_len);
     $t->creation_date(time);
-    print "Checksumming files. This may take a little while...\n";
+    #print "Checksumming files. This may take a little while...\n";
 
     # Can't use this,  have to do this manually because 
     # we need to have the multi-file type of torrent

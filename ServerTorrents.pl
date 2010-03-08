@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.27 2008/12/29 22:04:00 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.28 2010/01/07 18:50:02 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -122,7 +122,7 @@ sub Upload_Torrent {
     my $t       = $torrent->{'details'};
 
     my $file = $torrent->{'file'};
-    print "Uploading $file\n";
+    #print "Uploading $file\n";
 
     my $size = $t->total_size;
     my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday )
@@ -190,7 +190,7 @@ sub Delete_Torrent {
     my $hash     = shift;
     die "No hash passed!" unless $hash;
 
-    print "Removing $filename [$hash]\n";
+    #print "Removing $filename [$hash]\n";
 
     my $response = $ua->post(
         $OBT->{'URL_DELETE'},

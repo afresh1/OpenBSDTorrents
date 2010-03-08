@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.33 2010/03/03 18:15:31 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.34 2010/03/03 18:31:57 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -63,7 +63,7 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
         $files{$ext}{$name}{$epoch} = {
             file => $_,
             dir  => $DIR,
-            path => "$DIR/$_",
+            #path => "$DIR/$_",
             ext  => $ext,
 
             #year      => $year,
@@ -100,7 +100,7 @@ foreach my $name ( sort keys %{ $files{torrent} } ) {
 
 EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
         my $ct = $cn->{$epoch};
-        my $cf = $ct->{path};
+        my $cf = $ct->{dir} . '/' . $ct->{file};
 
         #print "\t$epoch - $cf\n";
 
@@ -136,7 +136,7 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 
         if ( $seen{$name} && $seen{$name} ne $hash ) {
             print "Removing older [$name] [$hash]\n\t",
-                $ct->{path},
+                $cf,
                 "\n";
             $ct->{reason} = 'older';
             push @delete, $ct;
@@ -151,7 +151,7 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
             }
 
             print "Removing duplicate [$name] [$hash]\n\t",
-                $keep{$hash}{path}, "\n";
+                $keep{$hash}{file}, "\n";
 
             $keep{$hash}{reason} = 'duplicate';
             $ct->{reason} = 'duplicate';
@@ -207,12 +207,14 @@ foreach my $hash ( keys %keep ) {
             or die "Couldn't rename '$file': $!";
 
         $dir = $OBT->{DIR_TORRENT};
+	$keep{$hash}{dir} = $dir;
 
         if ( exists $files{txt}{$name}{$epoch} ) {
             my $m_file = $files{txt}{$name}{$epoch}{file};
             my $m_dir  = $files{txt}{$name}{$epoch}{dir};
             rename( "$m_dir/$m_file", $OBT->{DIR_TORRENT} . "/" . $m_file )
                 or die "Couldn't rename '$m_file': $!";
+            $files{txt}{$name}{$epoch}{dir} = $OBT->{DIR_TORRENT};
         }
     }
 
@@ -226,16 +228,17 @@ foreach my $hash ( keys %keep ) {
         {
 
             #warn $client->error, ": $dir/$file\n";
-            print "Removing invalid torrent\n\t", $keep{$hash}{path}, "\n";
+            print "Removing invalid torrent\n\t", $keep{$hash}{file}, "\n";
             push @delete, $keep{$hash};
         }
     }
 }
 
 foreach (@delete) {
-    if ( $_->{path} ) {
-        print "Deleting '$_->{path}'\n";
-        unlink $_->{path} or die "Couldn't unlink $_->{path}";
+    my $path = $_->{dir} . '/' . $_->{file};
+    if ( -e $path ) {
+        print "Deleting '$path'\n";
+        unlink $path or die "Couldn't delete $path";
         delete $files{torrent}{ $_->{name} }{ $_->{epoch} };
     }
     else {
@@ -247,7 +250,10 @@ foreach (@delete) {
 foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
     foreach my $epoch ( keys %{ $files{ $OBT->{META_EXT} }{$name} } ) {
         unless ( exists $files{torrent}{$name}{$epoch} ) {
-            my $path = $files{ $OBT->{META_EXT} }{$name}{$epoch}{path};
+            my $path = $files{ $OBT->{META_EXT} }{$name}{$epoch}{dir}
+                     . '/'
+                     . $files{ $OBT->{META_EXT} }{$name}{$epoch}{file};
+
             print "Unlinking '$path'\n";
             unlink $path or die "couldn't unlink '$path': $!";
         }

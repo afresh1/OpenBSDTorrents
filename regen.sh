@@ -1,5 +1,5 @@
 #!/bin/sh
-#$RedRiver: regen.sh,v 1.8 2006/05/15 18:47:04 andrew Exp $
+#$RedRiver: regen.sh,v 1.9 2010/03/03 18:24:47 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -17,15 +17,18 @@ fi
 echo $$ > ${PIDFILE}
 
 if [[ $1 != skip ]]; then
+	echo 
 	echo ${OBT_DIR_HOME}/MakeTorrents.pl $*
 	${OBT_DIR_HOME}/MakeTorrents.pl $*
 fi
 
+echo 
 echo ${OBT_DIR_HOME}/CurrentTorrents.pl
 ${OBT_DIR_HOME}/CurrentTorrents.pl
 
 #if [ $? != 253 ]; then exit; fi
 
+echo 
 echo Removing old torrents
 for f in `ls ${OBT_DIR_CUR_TORRENT}`; do
         if [ ! -e ${OBT_DIR_TORRENT}/$f ]; then
@@ -33,14 +36,17 @@ for f in `ls ${OBT_DIR_CUR_TORRENT}`; do
         fi
 done
 
+echo 
 echo ${OBT_DIR_HOME}/ServerTorrents.pl
 ${OBT_DIR_HOME}/ServerTorrents.pl
 
+echo 
 echo lftp -f ${OBT_DIR_HOME}/lftp.script
 lftp -f ${OBT_DIR_HOME}/lftp.script
 
 sleep 60;
 
+echo 
 echo Starting new torrents
 for f in `ls ${OBT_DIR_TORRENT}`; do
         if [ ! -e ${OBT_DIR_CUR_TORRENT}/$f ]; then

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.14 2009/10/20 19:03:25 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.15 2010/03/03 18:23:46 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -106,6 +106,7 @@ sub StartTorrent
 
 	}
 
+	print "\n";
 	if (@now_update) {
 		print "Making torrents for ", join(" ", @now_update), "\n";
 	} else {
