@@ -1,4 +1,4 @@
-# $RedRiver: Cached.pm,v 1.12 2006/05/15 18:47:04 andrew Exp $
+# $RedRiver: Cached.pm,v 1.13 2009/12/16 20:11:13 andrew Exp $
 use strict;
 
 package BT::MetaInfo::Cached;
@@ -12,6 +12,10 @@ use Digest::MD5;
 
 use BT::MetaInfo;
 use base 'BT::MetaInfo';
+
+use Convert::Bencode_XS;
+*{bencode} = \&Convert::Bencode_XS::bencode;
+*{bdecode} = \&Convert::Bencode_XS::bdecode;
 
 $VERSION = do { my @r = (q$Id$ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
