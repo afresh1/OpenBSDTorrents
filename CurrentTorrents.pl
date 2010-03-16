@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.35 2010/03/08 20:19:35 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.36 2010/03/16 22:37:32 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -60,9 +60,10 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
 
         #print "Adding $DIR/$_\n";
 
-	if (exists $files{$ext}{$name}{$epoch}) {
-		warn "Multiple torrents with $name and epoch $epoch\n";
-	}
+        if (exists $files{$ext}{$name}{$epoch}) {
+            warn "Multiple torrents with $name and epoch $epoch\n";
+            push @delete, $files{$ext}{$name}{$epoch};
+        }
 
         $files{$ext}{$name}{$epoch} = {
             file => $_,
@@ -211,7 +212,7 @@ foreach my $hash ( keys %keep ) {
             or die "Couldn't rename '$file': $!";
 
         $dir = $OBT->{DIR_TORRENT};
-	$keep{$hash}{dir} = $dir;
+        $keep{$hash}{dir} = $dir;
 
         if ( exists $files{txt}{$name}{$epoch} ) {
             my $m_file = $files{txt}{$name}{$epoch}{file};
