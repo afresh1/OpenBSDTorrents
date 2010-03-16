@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.34 2010/03/03 18:31:57 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.35 2010/03/08 20:19:35 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -58,7 +58,11 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
             $name = $base;
         }
 
-        #print "Adding $_\n";
+        #print "Adding $DIR/$_\n";
+
+	if (exists $files{$ext}{$name}{$epoch}) {
+		warn "Multiple torrents with $name and epoch $epoch\n";
+	}
 
         $files{$ext}{$name}{$epoch} = {
             file => $_,
