@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: CurrentTorrents.pl,v 1.36 2010/03/16 22:37:32 andrew Exp $
+#$RedRiver: CurrentTorrents.pl,v 1.37 2010/03/16 22:40:18 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -60,12 +60,7 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
 
         #print "Adding $DIR/$_\n";
 
-        if (exists $files{$ext}{$name}{$epoch}) {
-            warn "Multiple torrents with $name and epoch $epoch\n";
-            push @delete, $files{$ext}{$name}{$epoch};
-        }
-
-        $files{$ext}{$name}{$epoch} = {
+        my $ct = {
             file => $_,
             dir  => $DIR,
             #path => "$DIR/$_",
@@ -83,9 +78,18 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
         if ( $name =~ m/\A $OBT->{BASENAME} /xms
             && !exists $Possible_Torrents{$name} )
         {
-            #print "Would remove $_\n";
-            push @delete, $files{$ext}{$name}{$epoch};
+            print "Would remove impossible $_\n";
+            push @delete, $ct;
+        }        
+        else {
+		if ($files{$ext}{$name}{$epoch}) {
+		    warn "Multiple torrents with $name and epoch $epoch\n";
+		    push @delete, $files{$ext}{$name}{$epoch};
+		}
+
+		$files{$ext}{$name}{$epoch} = $ct;
         }
+
     }
     closedir DIR;
 }
@@ -278,6 +282,9 @@ sub Process_Dir {
         foreach my $file (@$files) {
             if ( $file =~ /$INSTALL_ISO_REGEX/ ) {
                 Make_Possible("$dir/$file");
+            }
+            elsif ( $file =~ /$SONG_REGEX/xms ) {
+                Make_Possible("$dir/$1");
             }
         }
     }
