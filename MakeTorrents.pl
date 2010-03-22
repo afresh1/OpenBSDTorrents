@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -T
-#$RedRiver: MakeTorrents.pl,v 1.23 2010/02/25 17:54:13 andrew Exp $
+#$RedRiver: MakeTorrents.pl,v 1.24 2010/03/08 20:19:37 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -34,7 +34,7 @@ sub Process_Dir
 
 	my ($dirs, $files) = Get_Files_and_Dirs($basedir);
 	if (@$files) {
-		my $torrent = Make_Torrent($basedir, $files);
+		Make_Torrent($basedir, $files);
 	}
 
 	# don't recurse if we were started with a specific directory
@@ -50,18 +50,6 @@ sub Make_Torrent
 {
         my $basedir = shift;
         my $files   = shift;
-        my $ignore_too_few = shift || 0;
-
-	my $torrent_base = $basedir;
-        my $comment = "Files from $torrent_base\n";
-	if ($ignore_too_few && $files->[0] =~ /$INSTALL_ISO_REGEX/) {
-		$torrent_base = "$basedir/$files->[0]";
-		$comment = "$torrent_base\n";
-	}
-        elsif ($#{ $files } < $OBT->{MIN_FILES}) {
-                print "Too few files in $basedir, skipping . . .\n";
-                return undef;
-        }
 
         if ($basedir !~ /\.\./ && $basedir =~ /^([\w\/\.-]+)$/) {
                 $basedir = $1;
@@ -69,47 +57,65 @@ sub Make_Torrent
                 die "Invalid characters in dir '$basedir'";
         }
 
-	my @good_files;
+        if ($#{ $files } < $OBT->{MIN_FILES}) {
+                print "Too few files in $basedir, skipping . . .\n";
+                return undef;
+        }
+
+	my $torrent = Name_Torrent($basedir);
+	my $comment = "Files from $basedir";
+
+	my %torrents;
         foreach my $file (@$files) {
-		if ((!$ignore_too_few) && $file =~ /$INSTALL_ISO_REGEX/) {
-			my @f = ($file);
-			#foreach my $f (@$files) {
-			#	if ($f =~ /INSTALL|MD5/) {
-			#		push @f, $f;
-			#	}
-			#}
-			Make_Torrent($basedir, \@f, 1)
-		}
-                elsif ($file =~ /^([^\/]+)$/) {
-                       	push @good_files, "$basedir/$1";
+		if ($file =~ /^([^\/]+)$/) {
+			$file = $1;
+
+			my $t = $torrent;
+			my $c = $comment;
+
+			if ($file =~ /$INSTALL_ISO_REGEX/xms) {
+				$t = Name_Torrent("$basedir/$file");
+				$c = "$basedir/$file";
+			}
+			elsif (my ($ext) = $file =~ /$SONG_REGEX/xms) {
+				$t = Name_Torrent("$basedir/$ext");
+				$c = "$ext files from $basedir";
+			}
+
+			$torrents{$t}{comment} = $c;
+                       	push @{ $torrents{$t}{files} }, "$basedir/$file";
                 } 
 		else {
                         die "Invalid characters in file '$file' in '$basedir'";
                 }
         }
 
-        my $torrent = Name_Torrent($torrent_base);
 
-        print "Creating $torrent\n";
+	foreach my $t (keys %torrents) {
 
-	$comment .= "Created by andrew fresh (andrew\@afresh1.com)\n" .
-                      "http://OpenBSD.somedomain.net/";
+        	print "Creating $t (" 
+			. (scalar @{ $torrents{$t}{files} }) . " files)\n";
 
-	eval { btmake($torrent, $comment, \@good_files); };
-	if ($@) {
-		print "Error creating $torrent\n$@\n";
-	}
+		my $c = $torrents{$t}{comment};
+		$c .= "\nCreated by andrew fresh (andrew\@afresh1.com)\n" .
+                      	"http://OpenBSD.somedomain.net/";
+
+		eval { btmake($t, $c, $torrents{$t}{files}); };
+		if ($@) {
+			print "Error creating $t\n$@\n";
+		}
 
 #        system($BTMake,
 #               '-C',
 #               '-c', $comment,
 #               '-n', $OBT->{BASENAME},
-#               '-o', $OBT->{DIR_TORRENT} . "/$torrent",
+#               '-o', $OBT->{DIR_TORRENT} . "/$t",
 #               '-a', $Tracker,
 #               @$files
-#        );# || die "Couldn't system $BTMake $torrent: $!";
+#        );# || die "Couldn't system $BTMake $t: $!";
+	}
 
-        return $torrent;
+        return [ keys %torrents ];
 }
 
 
