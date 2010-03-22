@@ -1,5 +1,5 @@
 package OpenBSDTorrents;
-#$RedRiver: OpenBSDTorrents.pm,v 1.11 2010/03/03 21:15:20 andrew Exp $
+#$RedRiver: OpenBSDTorrents.pm,v 1.12 2010/03/22 19:08:48 andrew Exp $
 use 5.008005;
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ our $VERSION = '0.01';
 our @EXPORT = qw(
 	$OBT
 	$INSTALL_ISO_REGEX
-	$SONGS_REGEX
+	$SONG_REGEX
 	&Name_Torrent
 	&Get_Files_and_Dirs
 	&justme
@@ -22,7 +22,7 @@ our @EXPORT = qw(
 my $config_file = '/etc/OpenBSDTorrents.conf';
 our $OBT = Config();
 our $INSTALL_ISO_REGEX = qr/install\d+\.iso/xms;
-our $SONGS_REGEX       = qr/^(song.*\.([^\.]+))$/xms;
+our $SONG_REGEX        = qr/^song.*\.([^\.]+)$/xms;
 
 sub Config
 {
