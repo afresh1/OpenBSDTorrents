@@ -1,5 +1,5 @@
 #!/bin/sh
-# $RedRiver: MirrorOpenBSD,v 1.8 2010/01/05 19:43:16 andrew Exp $
+# $RedRiver: MirrorOpenBSD,v 1.9 2010/03/03 18:24:47 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -16,16 +16,18 @@ if [ -e ${PIDFILE} ]; then
 fi
 echo $$ > ${PIDFILE}
 
-#SERVER=rsync://ftp3.usa.openbsd.org/ftp/
+SERVER=rsync://ftp3.usa.openbsd.org/ftp/
 #SERVER=rsync://ftp5.usa.openbsd.org/ftp/
 #SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
 #SERVER=rsync://openbsd.mirror.frontiernet.net/OpenBSD
 #SERVER=rsync://mirror.rit.edu/OpenBSD/
-SERVER=rsync://mirror.planetunix.net/OpenBSD/
+#SERVER=rsync://filedump.se.rit.edu/OpenBSD/
+#SERVER=rsync://mirror.planetunix.net/OpenBSD/
 
 #	--dry-run \
 rsync -a \
-	--delete --delete-excluded \
+	--delete \
+        --delete-excluded \
 	--verbose=1 --log-format="%t [%p] %o %f %l" \
 	-f "exclude .*" \
 	-f "exclude ls-lR.gz" \
@@ -36,9 +38,10 @@ rsync -a \
 	-f "exclude /src/" \
 	-f "exclude /distfiles/" \
 	-f "exclude /patches/" \
+	-f "exclude */Changelogs/" \
 	-f "exclude /snapshots/packages/" \
 	-f "exclude /[23].?/" \
-	-f "exclude /4.[01234]/" \
-	-f "exclude /4.[5789]/packages/" \
+	-f "exclude /4.[012345]/" \
+	-f "exclude /4.[689]/packages/" \
 	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
 
