@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: NewTorrents.pl,v 1.15 2010/03/03 18:23:46 andrew Exp $
+#$RedRiver: NewTorrents.pl,v 1.16 2010/03/08 20:19:37 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -16,6 +16,7 @@ my %Need_Update;
 %ENV = ();
 
 my $last_dir = '';
+my $last_file = '';
 while (<>) {
 	#print;
 	chomp;
@@ -38,7 +39,13 @@ while (<>) {
 		if ($last_dir && $last_dir ne $dir) {
 			StartTorrent($last_dir);
 		}
+		elsif ($last_file && $last_file ne $file 
+			&& $last_file =~ /$INSTALL_ISO_REGEX/xms) {
+			StartTorrent("$dir/$file");
+		}
+
 		$last_dir = $dir;
+		$last_file = $file;
 	}
 }
 

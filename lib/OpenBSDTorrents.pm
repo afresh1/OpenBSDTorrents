@@ -1,5 +1,5 @@
 package OpenBSDTorrents;
-#$RedRiver: OpenBSDTorrents.pm,v 1.12 2010/03/22 19:08:48 andrew Exp $
+#$RedRiver: OpenBSDTorrents.pm,v 1.13 2010/03/22 20:13:53 andrew Exp $
 use 5.008005;
 use strict;
 use warnings;
@@ -63,6 +63,12 @@ sub Name_Torrent
 sub Get_Files_and_Dirs
 {
 	my $basedir = shift;
+
+	if ( -f $basedir ) {
+		$basedir =~ s{^.*/}{}xms;
+		return [], [ $basedir ];
+	}
+
 	opendir DIR, $basedir or die "Couldn't opendir $basedir: $!";
 	my @contents = sort grep { ! /^\.\.$/ } grep { ! /^\.$/ } readdir DIR;
 	closedir DIR;

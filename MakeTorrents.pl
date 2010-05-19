@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -T
-#$RedRiver: MakeTorrents.pl,v 1.25 2010/03/22 20:15:06 andrew Exp $
+#$RedRiver: MakeTorrents.pl,v 1.26 2010/03/22 20:16:02 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -32,6 +32,9 @@ sub Process_Dir {
     #return undef if $basedir =~ /packages/;
 
     my ( $dirs, $files ) = Get_Files_and_Dirs($basedir);
+    if ( -f $basedir) {
+        $basedir =~ s{/[^/]+$}{}xms;
+    }
     if (@$files) {
         Make_Torrent( $basedir, $files );
     }
@@ -56,7 +59,8 @@ sub Make_Torrent {
         die "Invalid characters in dir '$basedir'";
     }
 
-    if ( $#{$files} < $OBT->{MIN_FILES} ) {
+    if ( $#{$files} < $OBT->{MIN_FILES} 
+      && $files->[0] !~/$INSTALL_ISO_REGEX/xms ) {
         print "Too few files in $basedir, skipping . . .\n";
         return undef;
     }
