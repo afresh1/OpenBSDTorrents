@@ -1,3 +1,6 @@
+# $AFresh1$
+# complete and copy to /etc/OpenBSDTorrents.conf
+#
 OBT_DIR_FTP=/home/ftp/pub
 OBT_DIR_HOME=/home/OpenBSDTorrents
 OBT_DIR_TORRENT=/home/torrentsync/torrents
