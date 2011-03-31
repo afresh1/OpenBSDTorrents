@@ -1,5 +1,5 @@
 #!/bin/sh
-#$RedRiver: regen.sh,v 1.9 2010/03/03 18:24:47 andrew Exp $
+#$RedRiver: regen.sh,v 1.10 2010/03/08 20:19:37 andrew Exp $
 
 . /etc/OpenBSDTorrents.conf
 
@@ -41,8 +41,13 @@ echo ${OBT_DIR_HOME}/ServerTorrents.pl
 ${OBT_DIR_HOME}/ServerTorrents.pl
 
 echo 
-echo lftp -f ${OBT_DIR_HOME}/lftp.script
-lftp -f ${OBT_DIR_HOME}/lftp.script
+echo lftp torrents to ${OBT_FTP_SERVER}
+lftp -c "set ftp:ssl-allow no
+	open ftp://${OBT_FTP_USER}:${OBT_FTP_PASS}@${OBT_FTP_SERVER}
+	cd active
+	mirror -R -r -a -e /home/torrentsync/torrents/.
+	cd /
+	mirror -R -r -a /home/torrentsync/torrents/."
 
 sleep 60;
 
