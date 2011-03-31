@@ -1,0 +1,36 @@
+OBT_DIR_FTP=/home/ftp/pub
+OBT_DIR_HOME=/home/OpenBSDTorrents
+OBT_DIR_TORRENT=/home/torrentsync/torrents
+OBT_DIR_NEW_TORRENT=/home/torrentsync/new_torrents
+OBT_DIR_CUR_TORRENT=/home/torrentsync/cur_torrents
+OBT_DIR_LOG_TORRENT=/home/torrentseeder/log_torrents
+OBT_BASENAME=OpenBSD
+OBT_META_EXT=yaml
+
+# These are regexes that tell what files to skip making torrents for
+OBT_SKIP_DIRS=\/patches$
+OBT_SKIP_FILES='^(?:\.|index\.txt)'
+
+# URL's that we need to know the location of
+OBT_URL_TRACKER=http://OpenBSD.somedomain.net/announce.php
+OBT_URL_TORRENTS=http://openbsd.somedomain.net/dumptorrents.php
+OBT_URL_UPLOAD=http://openbsd.somedomain.net/newtorrents.php
+OBT_URL_DELETE=http://openbsd.somedomain.net/oldtorrents.php
+OBT_URL_SANITY=http://openbsd.somedomain.net/sanity.php
+
+# Username and password to upload the torrents to the tracker
+OBT_UPLOAD_USER=torrentup
+OBT_UPLOAD_PASS=
+
+# Username and password to FTP the finished torrents
+OBT_FTP_USER=torrents@somedomain.net
+OBT_FTP_PASS=''
+OBT_FTP_SERVER=
+
+OBT_PIECE_LENGTH=18
+
+# minimum limits on which dirs to create torrents from
+OBT_MIN_FILES=5
+# 50 * 1024 * 1024; # 50 MiB
+OBT_MIN_SIZE=52428800
+
