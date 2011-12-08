@@ -18,7 +18,7 @@ OBT_SKIP_FILES='^(?:\.|index\.txt)'
 OBT_URL_TRACKER=http://OpenBSD.somedomain.net/announce.php
 OBT_URL_TORRENTS=http://openbsd.somedomain.net/dumptorrents.php
 OBT_URL_UPLOAD=http://openbsd.somedomain.net/newtorrents.php
-OBT_URL_DELETE=http://openbsd.somedomain.net/oldtorrents.php
+OBT_URL_UPDATE=http://openbsd.somedomain.net/oldtorrents.php
 OBT_URL_SANITY=http://openbsd.somedomain.net/sanity.php
 
 # Username and password to upload the torrents to the tracker

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -T
-#$RedRiver: ServerTorrents.pl,v 1.28 2010/01/07 18:50:02 andrew Exp $
+#$RedRiver: ServerTorrents.pl,v 1.29 2010/03/08 20:19:37 andrew Exp $
 use strict;
 use warnings;
 use diagnostics;
@@ -99,6 +99,9 @@ foreach my $torrent ( readdir DIR ) {
     if ( !exists $server_torrents{$hash} ) {
         Upload_Torrent( $torrents{$hash} );
     }
+    elsif ( $server_torrents{$hash}{disabled} ) {
+        Update_Torrent( $server_torrents{$hash}{name}, $hash );
+    }
 }
 closedir DIR;
 
@@ -111,7 +114,7 @@ foreach my $hash ( keys %server_torrents ) {
     if (   ( !exists $torrents{$hash} )
         && ( !$server_torrents{$hash}{disabled} ) )
     {
-        Delete_Torrent( $server_torrents{$hash}{name}, $hash );
+        Update_Torrent( $server_torrents{$hash}{name}, $hash, 1 );
     }
 }
 
@@ -185,28 +188,31 @@ sub Upload_Torrent {
     }
 }
 
-sub Delete_Torrent {
+sub Update_Torrent {
     my $filename = shift;
     my $hash     = shift;
+    my $disable  = shift || 0;
     die "No hash passed!" unless $hash;
 
     #print "Removing $filename [$hash]\n";
 
     my $response = $ua->post(
-        $OBT->{'URL_DELETE'},
+        $OBT->{'URL_UPDATE'},
         {   username => $OBT->{UPLOAD_USER},
             password => $OBT->{UPLOAD_PASS},
             filename => $filename,
             hash     => $hash,
+	    disable  => $disable,
         },
         Content_Type => 'form-data'
     );
+    my $status = $disable ? 'Disabled' : 'Enabled';
 
     if ( $response->is_success ) {
         my ($result) = $response->content =~ /class="error"\>([^<]+)\</;
 
-        if ( $result eq 'Torrent was removed successfully.' ) {
-            print STDERR "Removed $filename [$hash]\n";
+        if ( $result eq 'Torrent disabled set to ' . $disable ) {
+            print STDERR "$status $filename [$hash]\n";
         }
         elsif ($result) {
             print STDERR "Error: $result (removing $filename [$hash])\n";
