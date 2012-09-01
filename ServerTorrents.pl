@@ -200,7 +200,6 @@ sub Update_Torrent {
         $OBT->{'URL_UPDATE'},
         {   username => $OBT->{UPLOAD_USER},
             password => $OBT->{UPLOAD_PASS},
-            filename => $filename,
             hash     => $hash,
 	    disable  => $disable,
         },
