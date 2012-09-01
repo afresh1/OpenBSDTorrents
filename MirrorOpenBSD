@@ -25,7 +25,7 @@ SERVER=rsync://ftp5.usa.openbsd.org/ftp/
 #SERVER=rsync://mirror.planetunix.net/OpenBSD/
 #SERVER=rsync://mirror.team-cymru.org/OpenBSD/ 
 
-#	--dry-run \
+	#--dry-run \
 rsync -a \
 	--delete \
         --delete-excluded \
@@ -41,8 +41,9 @@ rsync -a \
 	-f "exclude /patches/" \
 	-f "exclude */Changelogs/" \
 	-f "exclude /snapshots/packages/" \
-	-f "exclude /[23].?/" \
-	-f "exclude /4.[012345678]/" \
-	-f "exclude /4.[9]/packages/" \
-	-f "exclude /5.[1]/packages/" \
+	-f "exclude /[234].?/" \
+	-f "exclude /5.[023456789]/packages/" \
+	-f "exclude /5.2/**.tgz" \
 	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
+
+	#-f "exclude /5.[0]/" \
