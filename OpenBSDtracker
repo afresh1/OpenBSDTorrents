@@ -1,9 +1,38 @@
 #!/usr/bin/env perl
 use Mojolicious::Lite;
+use Mojo::ByteStream;
 use WWW::Opentracker::Stats;
+use DateTime;
 #use Convert::Bencode qw( bdecode );
 
 my $baseurl = 'http://localhost:6969/';
+
+helper title_case => sub {
+    my ($self, $block) = @_;
+
+    my $result = join ' ', map { ucfirst lc $_ } split /[-\s]/, $block;
+
+    return Mojo::ByteStream->new($result);;
+};
+
+helper human_number => sub {
+    my ($self, $number) = @_;
+    my @multipliers = qw( Bytes KiB MiB GiB TiB );
+    my $multiplier = 0;
+    while ($number > 1024) {
+        $number /= 1024;
+        $multiplier++;
+    }
+    my $result = sprintf '%.2f %s', $number, $multipliers[$multiplier];
+    return Mojo::ByteStream->new($result);;
+};
+
+helper human_date => sub {
+    my ($self, $epoch) = @_;
+    my $date = DateTime->from_epoch( epoch => $epoch );
+    my $result = "$date";
+    return Mojo::ByteStream->new($result);;
+};
 
 my $ot_stats = WWW::Opentracker::Stats->new({
     'statsurl'      => $baseurl . 'stats',
@@ -16,7 +45,8 @@ plugin 'PODRenderer';
 
 get '/' => sub {
     my $self = shift;
-#    $self->stash( torrents => $torrents );
+    my $torrents = app->ua->get('/torrents.json')->res->json;
+    $self->stash( torrents => $torrents );
     $self->stash( %{ $ot_stats->stats( $ot_stats->available_modes ) } );
 #    foreach my $hash ( keys %{ $self->stash->{tpbs}->{files} } ) {
 #        my $details = $self->stash->{tpbs}->{files}->{$hash};
@@ -38,26 +68,96 @@ __DATA__
 @@ index.html.ep
 % layout 'default';
 % title 'OpenBSD Torrents';
-%= dumper app->config;
-% while (my ($key, $value) = each %{ $peer }) {
-     <p><%= $key %>: <%= $value %></p>
+% my $detail_line = begin
+% my ($key, $value) = @_;
+<li><b><%= $key %>:</b> <%= $value %></li>
+% end;
+% my $file_list = begin
+% my ($info) = @_;
+% my $total_size = 0;
+% if ($info->{files}) {
+% content_for file_list => begin
+<ul>
+% foreach my $file ( @{ $info->{files} }) {
+%   $total_size += $file->{length};
+%=   $detail_line->( human_number($file->{length}), join('/', @{ $file->{path} }));
 % }
-% while (my ($key, $value) = each %{ $torr }) {
-     <p><%= $key %>: <%= $value %></p>
+</ul>
+% end
+%=  $detail_line->('Files', content_for('file_list') );
+% } else {
+%   $total_size = $info->{length};
 % }
+%= $detail_line->('Size', human_number($total_size) );
+% end;
+% my $url_list = begin
+% my ($list) = @_;
+% if ($list) {
+% content_for url_list => begin
+%   if (@{ $list } == 1) {
+%=      link_to $list->[0] => $list->[0];
+%   } else {
+<ul>
+%       foreach (@{ $list }) {
+          <li><%= link_to $_ => $_ %></li>
+%       }
+</ul>
+%   }
+% end
+%= $detail_line->('Web Seeds', content_for('url_list'));
+% }
+% end
 <table class="torrentlist">
-  <tr><th>Hash</th><th>Complete</th><th>Incomplete</th><th>Downloaded</th></tr>
+  <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
 % my $row = 0;
-% while (my ($hash, $details) = each %{ $tpbs->{files} }) {
-     <tr class="<%= $row % 2 ? 'odd' : 'even' %>">
-        <td><%= $hash %></td>
-        <td><%= $details->{complete} %></td>
-        <td><%= $details->{incomplete} %></td>
-        <td><%= $details->{downloaded} %></td>
+% while (my ( $hash, $data) = each %{ $torrents } ) {
+%   my $status = $tpbs->{files}->{$hash} || {};
+%   my $row_class = $row % 2 ? 'odd' : 'even';
+     <tr class="torrent <%= $row_class %>">
+        <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
+% if (%{ $status }) {
+%=      link_to $data->{info}->{name} => "torrent/$data->{info}->{torrent}"
+% } else {
+%=      $data->{info}->{name}
+% }
+        </td>
+        <td><%= $status->{complete}   // '--' %></td>
+        <td><%= $status->{incomplete} // '--' %></td>
+        <td><%= $status->{downloaded} // '--' %></td>
+    </tr>
+    <tr data-hash="<%= $hash %>" class="torrentdetails <%= $hash %> <%= $row_class %>">
+        <td colspan="4">
+            <ul>
+%= $detail_line->('Comment', $data->{comment}) if $data->{comment};
+%= $detail_line->('Created By', $data->{'created by'}) if $data->{'created by'};
+%= $detail_line->('Creaton Date', human_date( $data->{'creation date'} )) if $data->{'creation date'};
+%= $file_list->( $data->{info} );
+%= $url_list->( $data->{'url-list'} );
+%= $detail_line->('Hash', $hash);
+            </ul>
+        </td>
     </tr>
 %   $row++;
 % }
 </table>
+%= javascript begin
+$('.detail_expander').click(function ( event ) {
+    event.preventDefault();
+    var hash = $(this).attr('data-hash');
+    $('.torrentdetails.' + hash).toggle('fast');
+    $(this).toggleClass('arrow-right');
+    $(this).toggleClass('arrow-down');
+});
+$('.torrentdetails').click(function ( event ) {
+    event.preventDefault();
+    var hash = $(this).attr('data-hash');
+    $('.detail_expander.' + hash).click();
+});
+$(document).ready(function() {
+    $('.detail_expander').each(function(i, e) { $(e).addClass('arrow-right') });
+    $('.torrentdetails').each(function(i, e) { $(e).hide() });
+});
+% end
 
 @@ layouts/default.html.ep
 <!DOCTYPE html>
@@ -67,6 +167,7 @@ __DATA__
 %= stylesheet begin
 %=   include 'inc/style', format => 'css';
 %  end
+%= javascript '/js/jquery.js';
   </head>
   <body>
 %= include 'inc/header'
@@ -116,15 +217,23 @@ a:visited {
 	background-color: #334d66;
 	color: #ffffff;
 }
+.torrentlist .odd {
+	color: #000000;
+	background-color: #b3cde6;
+}
+.torrentdetails.even {
+	color: #40330d; 
+	background-color: #ffcc33;
+}
+.torrentdetails.odd {
+	color: #40330d; 
+	background-color: #fff2cc; 
+}
 .even a:link { 
 	color: #ffffff; 
 }
 .even a:visited { 
 	color: #ffffff; 
-}
-.torrentlist .odd {
-	color: #000000;
-	background-color: #b3cde6;
 }
 .odd a:link { 
 	color: #000000; 
@@ -132,8 +241,6 @@ a:visited {
 .odd a:visited { 
 	color: #000000; 
 }
-
-
 table.filter {
 	border: none;
 }
@@ -172,21 +279,6 @@ td.selector {
 	background-color: #FFCC33;
 }
 
-.torrentdetails {
-	width: auto;
-}
-.torrentdetails th {
-	text-align: right;
-	vertical-align: top;
-}
-
-
-.details {
-	font: 10px verdana, arial, sans-serif;
-	height: 0px;
-}
-
-
 p.error {
 	color: red;
 	text-align: center;
@@ -222,6 +314,27 @@ img     {
 	border-color: #FC9 #630 #330 #F96;
 	padding:0px 3px 0px 3px;
 	margin:0px;
+}
+
+.arrow-right {
+    height: 0;
+    width: 0;
+    margin-top:    3px;
+    margin-bottom: 3px;
+    margin-right:  6px;
+    border-top:    6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left:   6px solid black;
+}
+.arrow-down {
+    height: 0;
+    width: 0;
+    margin-top:    3px;
+    margin-bottom: 3px;
+    margin-right:  6px;
+    border-top:    6px solid black;
+    border-left:   6px solid transparent;
+    border-right:  6px solid transparent;
 }
 
 @@ inc/filter.html.ep
