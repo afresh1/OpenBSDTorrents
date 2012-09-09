@@ -7,6 +7,7 @@ use diagnostics;
 use Time::Local;
 use Fcntl ':flock';
 use File::Basename;
+use Mojo::JSON;
 
 #use YAML;
 
@@ -119,10 +120,9 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 
         $ct->{comment} = $t->{comment} || q{};
         my ($path) = $ct->{comment} =~ /($OBT->{BASENAME}\/[^\n]+)\n/s;
-        if (!$path && $name =~ /(.*)_iso/) {
-            $path = $1 . '.iso';
+        if (!$path && $name =~ /(.*\.iso)/) {
+            $path = $1;
         }
-        warn $path unless $path;
 
         if ( !-e $OBT->{DIR_FTP} . "/$path" ) {
             print
@@ -135,8 +135,10 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 
         my $hash = unpack( "H*", $t->info_hash );
         $ct->{info_hash} = $hash;
+        $ct->{torrent_data} = $t->{'data'}; # internals, but no accessor
 
-        undef $t;
+        # And this is a big bunch of unneeded binary data, so don't keep it
+        delete $ct->{torrent_data}->{info}->{pieces};
 
         if ( $seen{$name} && $seen{$name} ne $hash ) {
             print "Removing older [$name] [$hash]\n\t",
@@ -176,6 +178,7 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 #exit;
 
 #print Dump \%keep;
+my %current;
 foreach my $hash ( keys %keep ) {
     my $file = $keep{$hash}{file} || q{};
     my $dir  = $keep{$hash}{dir}  || q{};
@@ -183,6 +186,8 @@ foreach my $hash ( keys %keep ) {
     my $name  = $keep{$hash}{name};
     my $epoch = $keep{$hash}{epoch};
     my $reason = $keep{$hash}{reason} ? $keep{$hash}{reason} . q{ } : q{};
+
+    $current{$hash} = $keep{$hash}{torrent_data};
 
     #if ($reason && $reason ne 'only') {
     #    print "Keeping $reason instance of [$file] [$hash]\n",
@@ -206,6 +211,12 @@ foreach my $hash ( keys %keep ) {
         }
     }
 }
+
+my $json_file = $OBT->{DIR_TORRENT} . '/torrents.json';
+open my $fh, '>', "$json_file.new" or die "Couldn't open file $json_file: $!";
+print $fh Mojo::JSON->new->encode( \%current );
+close $fh;
+rename "$json_file.new", $json_file or die "Couldn't rename $json_file: $!";
 
 foreach (@delete) {
     my $path = $_->{dir} . '/' . $_->{file};
