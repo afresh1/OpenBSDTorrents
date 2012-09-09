@@ -29,14 +29,6 @@ ${OBT_DIR_HOME}/CurrentTorrents.pl
 #if [ $? != 253 ]; then exit; fi
 
 echo 
-echo Removing old torrents
-for f in `ls ${OBT_DIR_CUR_TORRENT}`; do
-        if [ ! -e ${OBT_DIR_TORRENT}/$f ]; then
-                rm ${OBT_DIR_CUR_TORRENT}/$f
-        fi
-done
-
-echo 
 echo ${OBT_DIR_HOME}/ServerTorrents.pl
 ${OBT_DIR_HOME}/ServerTorrents.pl
 
@@ -52,9 +44,5 @@ lftp -c "set ftp:ssl-allow no
 sleep 60;
 
 echo 
-echo Starting new torrents
-for f in `ls ${OBT_DIR_TORRENT}`; do
-        if [ ! -e ${OBT_DIR_CUR_TORRENT}/$f ]; then
-                ln -s ${OBT_DIR_TORRENT}/$f ${OBT_DIR_CUR_TORRENT}/$f
-        fi
-done
+echo ${OBT_DIR_HOME}/SeedTorrents[.pl
+${OBT_DIR_HOME}/SeedTorrents.pl
