@@ -6,7 +6,7 @@ use warnings;
 use diagnostics;
 
 use lib 'lib';
-use BT::MetaInfo::Cached;
+use Net::BitTorrent::File;
 use OpenBSDTorrents;
 
 %ENV = ();
@@ -135,15 +135,14 @@ sub btmake {
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
-    #if (@$files == 1) {
-    #$name = $files->[0];
-    #}
+    if (@$files == 1) {
+    	$name = $files->[0];
+    }
 
-    my $t
-        = BT::MetaInfo::Cached->new( { cache_root => '/tmp/OBTFileCache' } );
+    my $t = Net::BitTorrent::File->new();
 
     $t->name($name);
-    $t->announce($announce);
+    $t->announce([$announce]);
     unless ( $announce =~ m!^http://[^/]+/!i ) {
         warn
             "  [ WARNING: announce URL does not look like: http://hostname/ ]\n";
@@ -157,6 +156,7 @@ sub btmake {
     #}
     $t->piece_length($piece_len);
     $t->creation_date(time);
+    $t->created_by('OpenBSD Torrents - http://github.com/afresh1/OpenBSDTorrents');
 
     #print "Checksumming files. This may take a little while...\n";
 
@@ -166,8 +166,10 @@ sub btmake {
     #$t->set_files(@$files);
 
     my @file_list;
+    my $total_size = 0;
     foreach my $f (@$files) {
         my $l = ( stat("$OBT->{DIR_FTP}/$f") )[7];
+        $total_size += $l;
         my @p = split /\//, $f;
         shift @p;
         push @file_list,
@@ -176,16 +178,18 @@ sub btmake {
             path   => \@p,
             };
     }
-    $t->files( \@file_list );
-    $t->make_pieces(@$files);
 
-    if ( $t->total_size < $OBT->{MIN_SIZE} ) {
+    if ( $total_size < $OBT->{MIN_SIZE} ) {
         print "Skipping smaller than minimum size\n";
         return 0;
     }
 
-    my $hash = $t->info_hash;
-    $hash = unpack( "H*", $hash );
+    $t->files( \@file_list );
+    $t->gen_pieces_array(@$files);
+
+    #$t->gen_info_hash();
+    #my $hash = $t->info_hash;
+    #$hash = unpack( "H*", $hash );
 
     $t->save($torrent_with_path);
     print "Created: $torrent_with_path\n";
