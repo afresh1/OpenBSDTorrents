@@ -53,18 +53,6 @@ plugin 'PODRenderer';
 
 get '/' => sub {
     my $self = shift;
-    #$self->stash( %{ $ot_stats->stats( $ot_stats->available_modes ) } );
-#    foreach my $hash ( keys %{ $self->stash->{tpbs}->{files} } ) {
-#        my $details = $self->stash->{tpbs}->{files}->{$hash};
-#        my $encoded = join '', map { '%' . $_ } $hash =~ /../g;
-#        my $res
-#            = $self->ua->get( $baseurl . 'announce?info_hash=' . $encoded )
-#            ->res;
-#        my $announce = bdecode( $res->body );
-#        delete $announce->{peers};    # Since I don't need to decode it
-#        $details->{$_} = $announce->{$_} $self->stash->{announce}->{$hash}
-#            = $announce;
-#    }
     $self->render('index');
 };
 
