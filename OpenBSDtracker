@@ -34,9 +34,17 @@ helper human_date => sub {
     return Mojo::ByteStream->new($result);;
 };
 
-my $ot_stats = WWW::Opentracker::Stats->new({
-    'statsurl'      => $baseurl . 'stats',
-});
+helper torrents => sub {
+    state $ot_stats = WWW::Opentracker::Stats->new(
+        { 'statsurl' => $baseurl . 'stats', } );
+
+    my $torrents = app->ua->get('/torrent/torrents.json')->res->json || {};
+    my $files    = $ot_stats->stats('tpbs')->{tpbs}->{files};
+
+    $torrents->{ lc $_ }->{stats} = $files->{$_} for keys %{ $files || {} };
+
+    return $torrents;
+};
 
 # Documentation browser under "/perldoc"
 plugin 'PODRenderer';
@@ -45,9 +53,7 @@ plugin 'PODRenderer';
 
 get '/' => sub {
     my $self = shift;
-    my $torrents = app->ua->get('/torrent/torrents.json')->res->json;
-    $self->stash( torrents => $torrents );
-    $self->stash( %{ $ot_stats->stats( $ot_stats->available_modes ) } );
+    #$self->stash( %{ $ot_stats->stats( $ot_stats->available_modes ) } );
 #    foreach my $hash ( keys %{ $self->stash->{tpbs}->{files} } ) {
 #        my $details = $self->stash->{tpbs}->{files}->{$hash};
 #        my $encoded = join '', map { '%' . $_ } $hash =~ /../g;
@@ -109,9 +115,10 @@ __DATA__
 % end
 <table class="torrentlist">
   <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
+% my $torrents = torrents();
 % my $row = 0;
-% while (my ( $hash, $data) = each %{ $torrents } ) {
-%   my $status = $tpbs->{files}->{$hash} || {};
+% while (my ( $hash, $data) = each %{ $torrents || {} } ) {
+%   my $status = $data->{stats} || {};
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr class="torrent <%= $row_class %>">
         <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
