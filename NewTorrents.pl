@@ -41,14 +41,11 @@ while (<>) {
         next unless $size;
         next unless $dir;
 
-        if ( $last_dir && $last_dir ne $dir ) {
-            StartTorrent($last_dir);
+        if ($last_file =~ /$INSTALL_ISO_REGEX/xms ) {
+            StartTorrent("$last_dir/$last_file");
         }
-        elsif ($last_file
-            && $last_file ne $file
-            && $last_file =~ /$INSTALL_ISO_REGEX/xms )
-        {
-            StartTorrent("$dir/$file");
+        elsif ( $last_dir && $last_dir ne $dir ) {
+            StartTorrent($last_dir);
         }
 
         $last_dir  = $dir;
@@ -58,7 +55,12 @@ while (<>) {
 
 # Regen just the new ones now
 sleep(1) while ( keys %Kids > 0 );
-StartTorrent($last_dir);
+if ($last_file =~ /$INSTALL_ISO_REGEX/xms ) {
+    StartTorrent("$last_dir/$last_file");
+}
+else {
+    StartTorrent($last_dir);
+}
 
 # after the new ones are done, regen all, just to make sure
 sleep(1) while ( keys %Kids > 0 );
