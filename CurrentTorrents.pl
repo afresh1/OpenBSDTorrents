@@ -12,7 +12,7 @@ use File::Basename;
 
 use lib 'lib';
 use OpenBSDTorrents;
-use BT::MetaInfo::Cached;
+use Net::BitTorrent::File;
 
 %ENV = ();
 
@@ -110,13 +110,7 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 
         #print "\t$epoch - $cf\n";
 
-        my $t;
-        eval {
-            $t
-                = BT::MetaInfo::Cached->new( $cf,
-                { cache_root => '/tmp/OBTFileCache' } );
-        };
-
+        my $t = eval { Net::BitTorrent::File->new( $cf ) };
         if ($@) {
             warn "Error reading torrent $cf\n";
             push @delete, $ct;
