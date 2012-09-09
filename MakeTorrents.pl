@@ -22,7 +22,7 @@ if (@ARGV) {
     }
 }
 else {
-    $StartDir = $OBT->{BASENAME};
+    $StartDir = '.';
     Process_Dir($StartDir);
 }
 
@@ -40,7 +40,7 @@ sub Process_Dir {
     }
 
     # don't recurse if we were started with a specific directory
-    return 1 if $StartDir ne $OBT->{BASENAME};
+    return 1 if $StartDir ne '.';
 
     foreach my $subdir (@$dirs) {
         next if $subdir =~ /^\./;
