@@ -6,7 +6,6 @@ use warnings;
 use diagnostics;
 
 use lib 'lib';
-use Net::BitTorrent::File;
 use OpenBSDTorrents;
 
 %ENV = ();
@@ -120,91 +119,29 @@ sub Make_Torrent {
         if ($@) {
             print "Error creating $t\n$@\n";
         }
-
-        #        system($BTMake,
-        #               '-C',
-        #               '-c', $comment,
-        #               '-n', $OBT->{BASENAME},
-        #               '-o', $OBT->{DIR_TORRENT} . "/$t",
-        #               '-a', $Tracker,
-        #               @$files
-        #        );# || die "Couldn't system $BTMake $t: $!";
     }
 
     return [ keys %torrents ];
 }
 
-# Stole and modified from btmake to work for this.
 sub btmake {
-    no locale;
-
     my $torrent = shift;
     my $comment = shift;
     my $files   = shift;
 
-    my $name      = $OBT->{BASENAME};
+    my $name      = @$files == 1 ? $files->[0] : $OBT->{BASENAME};
     my $announce  = $OBT->{URL_TRACKER};
     my $piece_len = 2 << ( $OBT->{PIECE_LENGTH} - 1 );
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
-    if (@$files == 1) {
-    	$name = $files->[0];
-    }
+    system '/usr/local/bin/mktorrent',
+        '-a', $announce,
+        '-c', $comment,
+        '-n', $name,
+        '-o', $torrent_with_path,
+        @{$files};
 
-    my $t = Net::BitTorrent::File->new();
-
-    $t->name($name);
-    $t->announce([$announce]);
-    unless ( $announce =~ m!^http://[^/]+/!i ) {
-        warn
-            "  [ WARNING: announce URL does not look like: http://hostname/ ]\n";
-    }
-    $t->comment($comment);
-
-    #foreach my $pair (split(/;/, $::opt_f)) {
-    #    if (my($key, $val) = split(/,/, $pair, 2)) {
-    #        $t->set($key, $val);
-    #    }
-    #}
-    $t->piece_length($piece_len);
-    $t->creation_date(time);
-    $t->created_by('OpenBSD Torrents - http://github.com/afresh1/OpenBSDTorrents');
-
-    #print "Checksumming files. This may take a little while...\n";
-
-    # Can't use this,  have to do this manually because
-    # we need to have the multi-file type of torrent
-    # even when we have only one file.
-    #$t->set_files(@$files);
-
-    my @file_list;
-    my $total_size = 0;
-    foreach my $f (@$files) {
-        my $l = ( stat("$OBT->{DIR_FTP}/$f") )[7];
-        $total_size += $l;
-        my @p = split /\//, $f;
-        shift @p;
-        push @file_list,
-            {
-            length => $l,
-            path   => \@p,
-            };
-    }
-
-    if ( $total_size < $OBT->{MIN_SIZE} ) {
-        print "Skipping smaller than minimum size\n";
-        return 0;
-    }
-
-    $t->files( \@file_list );
-    $t->gen_pieces_array(@$files);
-
-    #$t->gen_info_hash();
-    #my $hash = $t->info_hash;
-    #$hash = unpack( "H*", $hash );
-
-    $t->save($torrent_with_path);
     print "Created: $torrent_with_path\n";
 }
 
