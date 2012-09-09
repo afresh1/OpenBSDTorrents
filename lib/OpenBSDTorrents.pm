@@ -53,7 +53,7 @@ sub Name_Torrent
 	my $date = Torrent_Date();
 
 	$torrent =~ s/^\W+//;
-	$torrent =~ s/\W/_/g;
+	$torrent =~ s{[^-\w\.]}{_}g;
 	$torrent .= '-' . $date;
 	$torrent .= '.torrent';
 
