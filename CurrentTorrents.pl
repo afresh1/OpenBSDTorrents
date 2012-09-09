@@ -180,6 +180,10 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 #print Dump \%keep;
 my $json_tmp     = $OBT->{DIR_TORRENT} . '/.torrents.json';
 my $json_file    = $OBT->{DIR_TORRENT} . '/torrents.json';
+my $allowed_tmp  = $OBT->{DIR_TORRENT} . '/.allowed.txt';
+my $allowed_file = $OBT->{DIR_TORRENT} . '/allowed.txt';
+open my $allowed_fh, '>', $allowed_tmp
+    or die "Couldn't open $allowed_tmp: $!";
 
 my %current;
 foreach my $hash ( keys %keep ) {
@@ -191,6 +195,7 @@ foreach my $hash ( keys %keep ) {
     my $reason = $keep{$hash}{reason} ? $keep{$hash}{reason} . q{ } : q{};
 
     $current{$hash} = $keep{$hash}{torrent_data};
+    print $allowed_fh $hash, "\n";
 
     #if ($reason && $reason ne 'only') {
     #    print "Keeping $reason instance of [$file] [$hash]\n",
@@ -219,7 +224,8 @@ open my $fh, '>', $json_tmp or die "Couldn't open file $json_tmp: $!";
 print $fh Mojo::JSON->new->encode( \%current );
 close $fh;
 
-rename $json_tmp, $json_file or die "Couldn't rename $json_file: $!";
+rename $allowed_tmp, $allowed_file or die "Couldn't rename $allowed_file: $!";
+rename $json_tmp,    $json_file    or die "Couldn't rename $json_file: $!";
 
 foreach (@delete) {
     my $path = $_->{dir} . '/' . $_->{file};
