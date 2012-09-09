@@ -28,22 +28,20 @@ SERVER=rsync://ftp5.usa.openbsd.org/ftp/
 	#--dry-run \
 rsync -a \
 	--delete \
-        --delete-excluded \
-	--verbose=1 --log-format="%t [%p] %o %f %l" \
-	-f "exclude .*" \
-	-f "exclude ls-lR.gz" \
-	-f "exclude /OpenBGPD/" \
-	-f "exclude /OpenNTPD/" \
-	-f "exclude /OpenSSH/" \
-	-f "exclude /cvs/" \
-	-f "exclude /src/" \
-	-f "exclude /distfiles/" \
-	-f "exclude /patches/" \
-	-f "exclude */Changelogs/" \
-	-f "exclude /snapshots/packages/" \
-	-f "exclude /[234].?/" \
-	-f "exclude /5.[023456789]/packages/" \
-	-f "exclude /5.2/**.tgz" \
+    --delete-excluded \
+	--verbose --log-format="%t [%p] %o %f %l" \
+	-f "include /5.[01]/" \
+	-f "include /5.[01]/*/" \
+	-f "include /5.0/i386/install*.iso" \
+	-f "include /5.0/amd64/install*.iso" \
+	-f "include /5.1/*/install*.iso" \
+	-f "include /snapshots/" \
+	-f "include /snapshots/*/" \
+	-f "include /snapshots/i386/install*.iso" \
+	-f "include /snapshots/amd64/install*.iso" \
+	-f "include /songs/" \
+	-f "include /songs/*" \
+	-f "exclude **" \
 	${SERVER} ${OBT_DIR_FTP}/${OBT_BASENAME}
 
 	#-f "exclude /5.[0]/" \
