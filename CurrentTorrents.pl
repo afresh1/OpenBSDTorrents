@@ -117,8 +117,12 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
             next EPOCH;
         }
 
-        $ct->{comment} = $t->{comment};
-        my ($path) = $t->{comment} =~ /($OBT->{BASENAME}\/[^\n]+)\n/s;
+        $ct->{comment} = $t->{comment} || q{};
+        my ($path) = $ct->{comment} =~ /($OBT->{BASENAME}\/[^\n]+)\n/s;
+        if (!$path && $name =~ /(.*)_iso/) {
+            $path = $1 . '.iso';
+        }
+        warn $path unless $path;
 
         if ( !-e $OBT->{DIR_FTP} . "/$path" ) {
             print
