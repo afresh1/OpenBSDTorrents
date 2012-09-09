@@ -31,7 +31,11 @@ while (<>) {
         )
     {
 
+        # Sometimes we include more of the path than we want
         $file =~ s/^.*$OBT->{BASENAME}\/?//;
+
+        # Sometimes not as much
+        $file = $OBT->{BASENAME} . '/' . $file;
 
         my ( $dir, $file ) = $file =~ m#^(.*)/([^/]+)#;
 
@@ -101,7 +105,6 @@ sub StartTorrent {
     else {
 
         #print "Need to make torrent for '$dir'\n";
-        $dir = $OBT->{BASENAME} . "/$dir";
         $Need_Update{$dir} = 1;
     }
 
