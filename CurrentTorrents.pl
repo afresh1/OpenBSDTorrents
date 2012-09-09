@@ -178,6 +178,9 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 #exit;
 
 #print Dump \%keep;
+my $json_tmp     = $OBT->{DIR_TORRENT} . '/.torrents.json';
+my $json_file    = $OBT->{DIR_TORRENT} . '/torrents.json';
+
 my %current;
 foreach my $hash ( keys %keep ) {
     my $file = $keep{$hash}{file} || q{};
@@ -212,11 +215,11 @@ foreach my $hash ( keys %keep ) {
     }
 }
 
-my $json_file = $OBT->{DIR_TORRENT} . '/torrents.json';
-open my $fh, '>', "$json_file.new" or die "Couldn't open file $json_file: $!";
+open my $fh, '>', $json_tmp or die "Couldn't open file $json_tmp: $!";
 print $fh Mojo::JSON->new->encode( \%current );
 close $fh;
-rename "$json_file.new", $json_file or die "Couldn't rename $json_file: $!";
+
+rename $json_tmp, $json_file or die "Couldn't rename $json_file: $!";
 
 foreach (@delete) {
     my $path = $_->{dir} . '/' . $_->{file};

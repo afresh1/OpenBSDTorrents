@@ -45,7 +45,7 @@ plugin 'PODRenderer';
 
 get '/' => sub {
     my $self = shift;
-    my $torrents = app->ua->get('/torrents.json')->res->json;
+    my $torrents = app->ua->get('/torrent/torrents.json')->res->json;
     $self->stash( torrents => $torrents );
     $self->stash( %{ $ot_stats->stats( $ot_stats->available_modes ) } );
 #    foreach my $hash ( keys %{ $self->stash->{tpbs}->{files} } ) {
