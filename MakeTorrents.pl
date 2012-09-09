@@ -52,6 +52,9 @@ sub Make_Torrent {
     my $basedir = shift;
     my $files   = shift;
 
+    $basedir =~ s{^[\./]+}{};
+    return unless $basedir;
+
     if ( $basedir !~ /\.\./ && $basedir =~ /^([\w\/\.-]+)$/ ) {
         $basedir = $1;
     }
@@ -75,10 +78,20 @@ sub Make_Torrent {
 
             my $t = $torrent;
             my $c = $comment;
+            my $f = "$basedir/$file";
 
             if ( $file =~ /$INSTALL_ISO_REGEX/xms ) {
-                $t = Name_Torrent("$basedir/$file");
-                $c = "$basedir/$file";
+                my $renamed = $f;
+                $renamed =~ s{/}{_}g;
+
+                my $root = $OBT->{DIR_FTP};
+
+                unlink $root . '/' . $renamed if -e $root . '/' . $renamed;
+                link $root . '/' . $f, $root . '/' . $renamed
+                    or die "Couldn't link $root/{$f to $renamed}: $!";
+
+                $t = Name_Torrent($renamed);
+                $c = $renamed;
             }
             elsif ( my ($ext) = $file =~ /$SONG_REGEX/xms ) {
                 $t = Name_Torrent("$basedir/$ext");
@@ -86,7 +99,7 @@ sub Make_Torrent {
             }
 
             $torrents{$t}{comment} = $c;
-            push @{ $torrents{$t}{files} }, "$basedir/$file";
+            push @{ $torrents{$t}{files} }, $f;
         }
         else {
             die "Invalid characters in file '$file' in '$basedir'";

@@ -46,7 +46,7 @@ while (<>) {
         next unless $dir;
 
         if ($last_file =~ /$INSTALL_ISO_REGEX/xms ) {
-            StartISOTorrent("$last_dir/$last_file");
+            StartTorrent("$last_dir/$last_file");
         }
         elsif ( $last_dir && $last_dir ne $dir ) {
             StartTorrent($last_dir);
@@ -60,7 +60,7 @@ while (<>) {
 # Regen just the new ones now
 sleep(1) while ( keys %Kids > 0 );
 if ($last_file =~ /$INSTALL_ISO_REGEX/xms ) {
-    StartISOTorrent("$last_dir/$last_file");
+    StartTorrent("$last_dir/$last_file");
 }
 else {
     StartTorrent($last_dir);
@@ -82,21 +82,6 @@ sub REAPER {
     $SIG{CHLD} = \&REAPER;    # still loathe sysV
 
     StartTorrent('waiting');
-}
-
-sub StartISOTorrent {
-    my $file = shift;
-    my $renamed = $file;
-    $renamed =~ s{/}{_}g;
-
-    my $root = $OBT->{DIR_FTP};
-
-    unlink $root . '/' . $renamed if -e $root . '/' . $renamed;
-    link $root . '/' . $file, $root . '/' . $renamed
-        or die "Couldn't link $root/{$file to $renamed}: $!";
-
-    warn $file, "\n", $renamed;
-    StartTorrent($renamed);
 }
 
 sub StartTorrent {
