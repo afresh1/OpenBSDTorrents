@@ -68,12 +68,70 @@ get '/' => sub {
     $self->render('index');
 };
 
+get '/:hash' => sub {
+    my $self = shift;
+    $self->stash->{detail} = $self->torrents->{ $self->stash->{hash} };
+
+    return $self->render( text => 'Torrent not found', status => 404 )
+        unless $self->stash->{detail};
+
+    $self->render( 'detail', layout => 'default' );
+};
+
 app->start;
 __DATA__
 
 @@ index.html.ep
 % layout 'default';
 % title 'OpenBSD Torrents';
+<table class="torrentlist">
+  <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
+% my $torrents = torrents();
+% my $row = 0;
+% while (my ( $hash, $detail ) = each %{ $torrents || {} } ) {
+%   my $status = $detail->{stats} || {};
+%   my $row_class = $row % 2 ? 'odd' : 'even';
+     <tr class="torrent <%= $row_class %>">
+        <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
+% if (%{ $status }) {
+%=      link_to $detail->{info}->{name} => "torrent/$detail->{info}->{torrent}"
+% } else {
+%=      $detail->{info}->{name}
+% }
+        </td>
+        <td><%= $status->{complete}   // '--' %></td>
+        <td><%= $status->{incomplete} // '--' %></td>
+        <td><%= $status->{downloaded} // '--' %></td>
+    </tr>
+    <tr data-hash="<%= $hash %>" class="torrentdetails <%= $hash %> <%= $row_class %>">
+        <td colspan="4">
+%= include 'detail', hash => $hash, detail => $detail;
+        </td>
+    </tr>
+%   $row++;
+% }
+</table>
+%= javascript begin
+$('.detail_expander').click(function ( event ) {
+    event.preventDefault();
+    var hash = $(this).attr('data-hash');
+    $('.torrentdetails.' + hash).toggle('fast');
+    $(this).toggleClass('arrow-right');
+    $(this).toggleClass('arrow-down');
+});
+$('.torrentdetails').click(function ( event ) {
+    event.preventDefault();
+    var hash = $(this).attr('data-hash');
+    $('.detail_expander.' + hash).click();
+});
+$(document).ready(function() {
+    $('.detail_expander').each(function(i, e) { $(e).addClass('arrow-right') });
+    $('.torrentdetails').each(function(i, e) { $(e).hide() });
+});
+% end
+
+@@ detail.html.ep
+% title 'OpenBSD Torrent Details';
 % my $detail_line = begin
 % my ($key, $value) = @_;
 <li><b><%= $key %>:</b> <%= $value %></li>
@@ -113,58 +171,14 @@ __DATA__
 %= $detail_line->('Web Seeds', content_for('url_list'));
 % }
 % end
-<table class="torrentlist">
-  <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
-% my $torrents = torrents();
-% my $row = 0;
-% while (my ( $hash, $data) = each %{ $torrents || {} } ) {
-%   my $status = $data->{stats} || {};
-%   my $row_class = $row % 2 ? 'odd' : 'even';
-     <tr class="torrent <%= $row_class %>">
-        <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
-% if (%{ $status }) {
-%=      link_to $data->{info}->{name} => "torrent/$data->{info}->{torrent}"
-% } else {
-%=      $data->{info}->{name}
-% }
-        </td>
-        <td><%= $status->{complete}   // '--' %></td>
-        <td><%= $status->{incomplete} // '--' %></td>
-        <td><%= $status->{downloaded} // '--' %></td>
-    </tr>
-    <tr data-hash="<%= $hash %>" class="torrentdetails <%= $hash %> <%= $row_class %>">
-        <td colspan="4">
-            <ul>
-%= $detail_line->('Comment', $data->{comment}) if $data->{comment};
-%= $detail_line->('Created By', $data->{'created by'}) if $data->{'created by'};
-%= $detail_line->('Creaton Date', human_date( $data->{'creation date'} )) if $data->{'creation date'};
-%= $file_list->( $data->{info} );
-%= $url_list->( $data->{'url-list'} );
+<ul>
+%= $detail_line->('Comment', $detail->{comment}) if $detail->{comment};
+%= $detail_line->('Created By', $detail->{'created by'}) if $detail->{'created by'};
+%= $detail_line->('Creaton Date', human_date( $detail->{'creation date'} )) if $detail->{'creation date'};
+%= $file_list->( $detail->{info} );
+%= $url_list->( $detail->{'url-list'} );
 %= $detail_line->('Hash', $hash);
-            </ul>
-        </td>
-    </tr>
-%   $row++;
-% }
-</table>
-%= javascript begin
-$('.detail_expander').click(function ( event ) {
-    event.preventDefault();
-    var hash = $(this).attr('data-hash');
-    $('.torrentdetails.' + hash).toggle('fast');
-    $(this).toggleClass('arrow-right');
-    $(this).toggleClass('arrow-down');
-});
-$('.torrentdetails').click(function ( event ) {
-    event.preventDefault();
-    var hash = $(this).attr('data-hash');
-    $('.detail_expander.' + hash).click();
-});
-$(document).ready(function() {
-    $('.detail_expander').each(function(i, e) { $(e).addClass('arrow-right') });
-    $('.torrentdetails').each(function(i, e) { $(e).hide() });
-});
-% end
+</ul>
 
 @@ layouts/default.html.ep
 <!DOCTYPE html>
