@@ -26,23 +26,6 @@ echo
 echo ${OBT_DIR_HOME}/CurrentTorrents.pl
 ${OBT_DIR_HOME}/CurrentTorrents.pl
 
-#if [ $? != 253 ]; then exit; fi
-
-echo 
-echo ${OBT_DIR_HOME}/ServerTorrents.pl
-${OBT_DIR_HOME}/ServerTorrents.pl
-
-echo 
-echo lftp torrents to ${OBT_FTP_SERVER}
-lftp -c "set ftp:ssl-allow no
-	open ftp://${OBT_FTP_USER}:${OBT_FTP_PASS}@${OBT_FTP_SERVER}
-	cd active
-	mirror -R -r -a -e /home/torrentsync/torrents/.
-	cd /
-	mirror -R -r -a /home/torrentsync/torrents/."
-
-sleep 60;
-
 echo 
 echo ${OBT_DIR_HOME}/SeedTorrents[.pl
 ${OBT_DIR_HOME}/SeedTorrents.pl
