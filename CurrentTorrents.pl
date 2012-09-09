@@ -8,9 +8,6 @@ use Time::Local;
 use Fcntl ':flock';
 use File::Basename;
 
-use Transmission::Client;
-use Transmission::Utils;
-
 #use YAML;
 
 use lib 'lib';
@@ -180,22 +177,6 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 #print Dump \%keep, \@delete;
 #exit;
 
-my $client = Transmission::Client->new;
-my %seeding;
-foreach my $torrent ( @{ $client->torrents } ) {
-
-    #my $status = Transmission::Utils::from_numeric_status($torrent->status);
-    my $hash = $torrent->hash_string;
-    if ( exists $keep{$hash} ) {
-        $seeding{$hash} = $torrent;
-    }
-    else {
-        print "No longer seeding [$hash]\n";
-        $torrent->stop or warn $torrent->error_string;
-        $client->remove( $torrent->id ) or warn $client->error;
-    }
-}
-
 #print Dump \%keep;
 foreach my $hash ( keys %keep ) {
     my $file = $keep{$hash}{file} || q{};
@@ -226,21 +207,6 @@ foreach my $hash ( keys %keep ) {
             $files{txt}{$name}{$epoch}{dir} = $OBT->{DIR_TORRENT};
         }
     }
-
-    if ( !$seeding{$hash} ) {
-        print 'Starting seed of ' . $reason . "[$file] [$hash]\n";
-        if (!$client->add(
-                filename     => "$dir/$file",
-                download_dir => $OBT->{DIR_FTP},
-            )
-            )
-        {
-
-            #warn $client->error, ": $dir/$file\n";
-            print "Removing invalid torrent\n\t", $keep{$hash}{file}, "\n";
-            push @delete, $keep{$hash};
-        }
-    }
 }
 
 foreach (@delete) {
@@ -268,8 +234,6 @@ foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
         }
     }
 }
-
-$client->start;
 
 sub Process_Dir {
     my $basedir = shift;
