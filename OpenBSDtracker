@@ -82,10 +82,10 @@ __DATA__
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr class="torrent <%= $row_class %>">
         <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
-% if (%{ $status }) {
+% if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{info}->{torrent}"
 % } else {
-%=      $detail->{info}->{name}
+%=      $hash
 % }
         </td>
         <td><%= $status->{complete}   // '--' %></td>
