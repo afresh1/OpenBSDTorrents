@@ -409,11 +409,6 @@ img     {
 <h1>OpenBSD Torrents 
   <a href="/rss.php?" title="subscribe">
   <span class="rsslink" style="vertical-align: top;">RSS</span></a></h1>
-  <h3>The OpenBSD Torrents are currently looking for new hosting for the
-  tracker and primary seeder/torrent generator.  For more information, see <a
-  href="http://marc.info/?l=openbsd-misc&m=130151867004965">the
-  request on misc@</a>.  If you are interested, please <a
-  href="mailto:andrew@afresh1.com">let me know</a>.</h3>
 <h4>
   Please be sure to support the <a href="http://www.openbsd.org">OpenBSD</a>
   project by purchasing 
