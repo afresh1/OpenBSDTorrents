@@ -455,13 +455,12 @@ Torrents are dated because they may be replaced with newer torrents from the sam
     <li>The 'latest release' filter is something that allows you to get an rss feed for the latest release without changing the URL.  It is something that I will update manually twice a year.</li>
     </ul>
     </li>
-	<li>NAT checking has been disabled on this tracker.</li>
 <li>More information is available on <a href="http://www.openbsd.org/">OpenBSD</a> and <a href="http://www.bittorrent.com">BitTorrent</a></li>
   <li>Logos on this site are copyright by their respective owners.</li>
   <li>You should get the 
-    <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=cksum">CKSUM</a>,
-    <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=md5">MD5</a> or
-    SHA256
+    <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=sha256">SHA256</a>
+        or
+    <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=md5">MD5</a>
      file from one of the <a href="http://www.openbsd.org/ftp.html">official mirrors</a> and check it against the files you downloaded.</li>
 </ul>
 
