@@ -62,7 +62,7 @@ get '/torrents' => sub {
     ) 
 };
 
-get '/:hash' => sub {
+get '/detail/:hash' => sub {
     my $self = shift;
     $self->stash->{detail} = $self->torrents->{ $self->stash->{hash} };
 
