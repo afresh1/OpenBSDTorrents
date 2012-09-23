@@ -90,7 +90,8 @@ sub Make_Torrent {
                     or die "Couldn't link $root/{$f to $renamed}: $!";
 
                 $t = Name_Torrent($renamed);
-                $c = $renamed;
+                $c = $f;
+                $torrents{$t}{name} = $renamed;
             }
             elsif ( my ($ext) = $file =~ /$SONG_REGEX/xms ) {
                 $t = Name_Torrent("$basedir/$ext");
@@ -111,11 +112,12 @@ sub Make_Torrent {
             . ( scalar @{ $torrents{$t}{files} } )
             . " files)\n";
 
+        my $n = $torrents{$t}{name} || $OBT->{BASENAME};
         my $c = $torrents{$t}{comment};
         $c .= "\nCreated by andrew fresh (andrew\@afresh1.com)\n"
             . "http://OpenBSD.somedomain.net/";
 
-        eval { btmake( $t, $c, $torrents{$t}{files} ); };
+        eval { btmake( $t, $n, $c, $torrents{$t}{files} ); };
         if ($@) {
             print "Error creating $t\n$@\n";
         }
@@ -126,10 +128,10 @@ sub Make_Torrent {
 
 sub btmake {
     my $torrent = shift;
+    my $name    = shift;
     my $comment = shift;
     my $files   = shift;
 
-    my $name      = @$files == 1 ? $files->[0] : $OBT->{BASENAME};
     my $announce  = $OBT->{URL_TRACKER};
     my $piece_len = 2 << ( $OBT->{PIECE_LENGTH} - 1 );
 
@@ -137,8 +139,8 @@ sub btmake {
 
     system '/usr/local/bin/mktorrent',
         '-a', $announce,
-        '-c', $comment,
         '-n', $name,
+        '-c', $comment,
         '-o', $torrent_with_path,
         @{$files};
 
