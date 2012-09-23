@@ -82,7 +82,11 @@ __DATA__
   <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
 % my $torrents = torrents();
 % my $row = 0;
-% while (my ( $hash, $detail ) = each %{ $torrents || {} } ) {
+% foreach my $hash (
+%     sort { $torrents->{$a}->{torrent} cmp $torrents->{$b}->{torrent} }
+%     keys %{$torrents} )
+% {
+%   my $detail = $torrents->{$hash};
 %   my $status = $detail->{stats} || {};
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr class="torrent <%= $row_class %>">
