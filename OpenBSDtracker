@@ -138,7 +138,7 @@ $(document).ready(function() {
 % my ($info) = @_;
 % my $total_size = 0;
 % if ($info->{files}) {
-% content_for file_list => begin
+% content file_list => begin
 <ul>
 % foreach my $file ( @{ $info->{files} }) {
 %   $total_size += $file->{length};
@@ -146,7 +146,7 @@ $(document).ready(function() {
 % }
 </ul>
 % end
-%=  $detail_line->('Files', content_for('file_list') );
+%=  $detail_line->('Files', content('file_list') );
 % } else {
 %   $total_size = $info->{length};
 % }
@@ -155,18 +155,19 @@ $(document).ready(function() {
 % my $url_list = begin
 % my ($list) = @_;
 % if ($list) {
-% content_for url_list => begin
+%    $list = [$list] unless ref $list eq 'ARRAY';
+% content url_list => begin
 %   if (@{ $list } == 1) {
 %=      link_to $list->[0] => $list->[0];
 %   } else {
-<ul>
+        <ul>
 %       foreach (@{ $list }) {
           <li><%= link_to $_ => $_ %></li>
 %       }
-</ul>
+        </ul>
 %   }
 % end
-%= $detail_line->('Web Seeds', content_for('url_list'));
+%= $detail_line->('Web Seeds', content('url_list'));
 % }
 % end
 <ul>
