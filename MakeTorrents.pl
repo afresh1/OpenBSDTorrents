@@ -133,12 +133,14 @@ sub btmake {
     my $files   = shift;
 
     my $announce  = $OBT->{URL_TRACKER};
+    my $web_seed  = $OBT->{URL_WEBSEED} . $name;
     my $piece_len = 2 << ( $OBT->{PIECE_LENGTH} - 1 );
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
     system '/usr/local/bin/mktorrent',
         '-a', $announce,
+        '-w', $web_seed,
         '-n', $name,
         '-c', $comment,
         '-o', $torrent_with_path,
