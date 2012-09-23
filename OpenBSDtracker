@@ -52,9 +52,14 @@ plugin 'PODRenderer';
 
 #my $torrents = plugin 'JSONConfig' => { file => 'torrents.json' };
 
-get '/' => sub {
+get '/' => sub { shift->render('index') };
+get '/torrents' => sub { 
     my $self = shift;
-    $self->render('index');
+
+    $self->respond_to(
+        json => { json => $self->torrents },
+        html => { template => 'index' },
+    ) 
 };
 
 get '/:hash' => sub {
