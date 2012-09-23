@@ -88,7 +88,7 @@ __DATA__
      <tr class="torrent <%= $row_class %>">
         <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
 % if ($detail->{info}->{name}) {
-%=      link_to $detail->{info}->{name} => "torrent/$detail->{info}->{torrent}"
+%=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
 % } else {
 %=      $hash
 % }

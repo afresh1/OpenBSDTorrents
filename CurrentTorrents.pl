@@ -195,6 +195,7 @@ foreach my $hash ( keys %keep ) {
     my $reason = $keep{$hash}{reason} ? $keep{$hash}{reason} . q{ } : q{};
 
     $current{$hash} = $keep{$hash}{torrent_data};
+    $current{$hash}{torrent} = $keep{$hash}{file};
     print $allowed_fh $hash, "\n";
 
     #if ($reason && $reason ne 'only') {
