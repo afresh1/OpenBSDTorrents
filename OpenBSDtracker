@@ -48,7 +48,7 @@ helper torrents => sub {
 };
 
 # Documentation browser under "/perldoc"
-plugin 'PODRenderer';
+plugin 'PODRenderer' if app->mode eq 'development';
 
 #my $torrents = plugin 'JSONConfig' => { file => 'torrents.json' };
 
@@ -199,7 +199,11 @@ $(document).ready(function() {
 @@ inc/style.css.ep
 body {
 	font: 12px tahoma, verdana, arial, sans-serif;
+% if (app->mode eq 'production') {
 	background-color: #f0f5fa;
+% } else {
+	background-color: #FFE0E0;
+% }
 	color: #334d66;
 }
 h1 { /* Tracker Header/Title */
