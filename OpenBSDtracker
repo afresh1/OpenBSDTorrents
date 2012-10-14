@@ -42,7 +42,9 @@ helper torrents => sub {
     my $files    = eval { $ot_stats->stats('tpbs')->{tpbs}->{files} };
     warn $@ if $@;
 
-    $torrents->{ lc $_ }->{stats} = $files->{$_} for keys %{ $files || {} };
+    $torrents->{ lc $_ }->{stats} = $files->{$_}
+        for grep { $torrents->{ lc $_ } || $files->{$_}->{complete} }
+        keys %{ $files || {} };
 
     return $torrents;
 };
