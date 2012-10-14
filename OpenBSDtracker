@@ -17,6 +17,8 @@ helper title_case => sub {
 
 helper human_number => sub {
     my ($self, $number) = @_;
+    $number //= 0;
+
     my @multipliers = qw( Bytes KiB MiB GiB TiB );
     my $multiplier = 0;
     while ($number > 1024) {
@@ -45,6 +47,8 @@ helper torrents => sub {
     $torrents->{ lc $_ }->{stats} = $files->{$_}
         for grep { $torrents->{ lc $_ } || $files->{$_}->{complete} }
         keys %{ $files || {} };
+
+    $torrents->{$_}->{torrent} ||= '' for keys %{ $torrents };
 
     return $torrents;
 };
