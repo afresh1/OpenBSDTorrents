@@ -7,6 +7,7 @@ use diagnostics;
 use Time::Local;
 use Fcntl ':flock';
 use File::Basename;
+use File::Copy qw( move );
 use Mojo::JSON;
 
 #use YAML;
@@ -205,8 +206,8 @@ foreach my $hash ( keys %keep ) {
 
     if ( $dir eq $OBT->{DIR_NEW_TORRENT} ) {
         print "Moving $file to current torrents\n";
-        rename( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
-            or die "Couldn't rename '$file': $!";
+        move( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
+            or die "Couldn't move '$file': $!";
 
         $dir = $OBT->{DIR_TORRENT};
         $keep{$hash}{dir} = $dir;
