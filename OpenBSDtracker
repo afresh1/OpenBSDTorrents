@@ -139,15 +139,16 @@ $(document).ready(function() {
 % my ($info) = @_;
 % my $total_size = 0;
 % if ($info->{files}) {
-% content file_list => begin
+% my $file_list = begin
+% my $files = shift;
 <ul>
-% foreach my $file ( @{ $info->{files} }) {
+% foreach my $file ( @{ $files }) {
 %   $total_size += $file->{length};
-%=   $detail_line->( human_number($file->{length}), join('/', @{ $file->{path} }));
+%=   $detail_line->( join('/', @{ $file->{path} } ), human_number($file->{length}) );
 % }
 </ul>
 % end
-%=  $detail_line->('Files', content('file_list') );
+%=  $detail_line->('Files', $file_list->($info->{files}) );
 % } else {
 %   $total_size = $info->{length};
 % }
@@ -157,7 +158,7 @@ $(document).ready(function() {
 % my ($list) = @_;
 % if ($list) {
 %    $list = [$list] unless ref $list eq 'ARRAY';
-% content url_list => begin
+% my $web_seeds = begin
 %   if (@{ $list } == 1) {
 %=      link_to $list->[0] => $list->[0];
 %   } else {
@@ -168,7 +169,7 @@ $(document).ready(function() {
         </ul>
 %   }
 % end
-%= $detail_line->('Web Seeds', content('url_list'));
+%= $detail_line->('Web Seeds', $web_seeds->($list));
 % }
 % end
 <ul>
