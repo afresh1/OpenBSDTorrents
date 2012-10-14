@@ -7,6 +7,7 @@ use diagnostics;
 use Time::Local;
 use Fcntl ':flock';
 use File::Basename;
+use File::Copy qw( move );
 use Mojo::JSON;
 
 #use YAML;
@@ -36,7 +37,7 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
     opendir DIR, $DIR
         or die "Couldn't opendir $DIR: $!";
     foreach ( readdir DIR ) {
-        next unless my ($ext) = /\.(torrent|$OBT->{META_EXT})$/;
+        next unless my ($ext) = /\.(torrent)$/;
 
         if (/^([^\/]+)$/) {
             $_ = $1;
@@ -205,8 +206,8 @@ foreach my $hash ( keys %keep ) {
 
     if ( $dir eq $OBT->{DIR_NEW_TORRENT} ) {
         print "Moving $file to current torrents\n";
-        rename( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
-            or die "Couldn't rename '$file': $!";
+        move( "$dir/$file", $OBT->{DIR_TORRENT} . "/" . $file )
+            or die "Couldn't move '$file': $!";
 
         $dir = $OBT->{DIR_TORRENT};
         $keep{$hash}{dir} = $dir;
@@ -238,19 +239,6 @@ foreach (@delete) {
     else {
         use Data::Dumper;
         print Dumper $_;
-    }
-}
-
-foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
-    foreach my $epoch ( keys %{ $files{ $OBT->{META_EXT} }{$name} } ) {
-        unless ( exists $files{torrent}{$name}{$epoch} ) {
-            my $path = $files{ $OBT->{META_EXT} }{$name}{$epoch}{dir}
-                     . '/'
-                     . $files{ $OBT->{META_EXT} }{$name}{$epoch}{file};
-
-            print "Unlinking '$path'\n";
-            unlink $path or die "couldn't unlink '$path': $!";
-        }
     }
 }
 
