@@ -92,8 +92,8 @@ __DATA__
 %   my $detail = $torrents->{$hash};
 %   my $status = $detail->{stats} || {};
 %   my $row_class = $row % 2 ? 'odd' : 'even';
-     <tr class="torrent <%= $row_class %>">
-        <td><div data-hash="<%= $hash %>" class="detail_expander <%= $hash %>" style="float:left"></div>
+     <tr data-hash="<%= $hash %>" class="torrent <%= $row_class %>">
+        <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
 % if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
 % } else {
@@ -114,16 +114,20 @@ __DATA__
 </table>
 %= javascript begin
 $('.detail_expander').click(function ( event ) {
-    event.preventDefault();
-    var hash = $(this).attr('data-hash');
+    var hash = $(this).closest('tr').attr('data-hash');
+    if (!hash) return;
     $('.torrentdetails.' + hash).toggle('fast');
     $(this).toggleClass('arrow-right');
     $(this).toggleClass('arrow-down');
+    event.stopImmediatePropagation();
 });
-$('.torrentdetails').click(function ( event ) {
-    event.preventDefault();
+$('.torrentlist tr').click(function ( event ) {
     var hash = $(this).attr('data-hash');
+    if (!hash) return;
     $('.detail_expander.' + hash).click();
+});
+$('.torrentlist a').click(function ( event ) {
+    event.stopImmediatePropagation();
 });
 $(document).ready(function() {
     $('.detail_expander').each(function(i, e) { $(e).addClass('arrow-right') });
