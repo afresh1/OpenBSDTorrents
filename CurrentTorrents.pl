@@ -36,7 +36,7 @@ foreach my $DIR ( $OBT->{DIR_NEW_TORRENT}, $OBT->{DIR_TORRENT} ) {
     opendir DIR, $DIR
         or die "Couldn't opendir $DIR: $!";
     foreach ( readdir DIR ) {
-        next unless my ($ext) = /\.(torrent|$OBT->{META_EXT})$/;
+        next unless my ($ext) = /\.(torrent)$/;
 
         if (/^([^\/]+)$/) {
             $_ = $1;
@@ -238,19 +238,6 @@ foreach (@delete) {
     else {
         use Data::Dumper;
         print Dumper $_;
-    }
-}
-
-foreach my $name ( keys %{ $files{ $OBT->{META_EXT} } } ) {
-    foreach my $epoch ( keys %{ $files{ $OBT->{META_EXT} }{$name} } ) {
-        unless ( exists $files{torrent}{$name}{$epoch} ) {
-            my $path = $files{ $OBT->{META_EXT} }{$name}{$epoch}{dir}
-                     . '/'
-                     . $files{ $OBT->{META_EXT} }{$name}{$epoch}{file};
-
-            print "Unlinking '$path'\n";
-            unlink $path or die "couldn't unlink '$path': $!";
-        }
     }
 }
 

@@ -155,7 +155,6 @@ sub btmake {
 
     my $announce  = $OBT->{URL_TRACKER};
     my $web_seed  = $OBT->{URL_WEBSEED} . $name;
-    my $piece_len = 2 << ( $OBT->{PIECE_LENGTH} - 1 );
 
     my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
 
