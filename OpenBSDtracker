@@ -91,6 +91,8 @@ __DATA__
 % {
 %   my $detail = $torrents->{$hash};
 %   my $status = $detail->{stats} || {};
+%   my $web_seed = '';
+%   $web_seed = t span => class => web_seed => 'Web Seed' ;
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr data-hash="<%= $hash %>" class="torrent <%= $row_class %>">
         <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
@@ -100,7 +102,7 @@ __DATA__
 %=      $hash
 % }
         </td>
-        <td><%= $status->{complete}   // '--' %></td>
+        <td><%= $status->{complete}   // '--' %><%= $web_seed %></td>
         <td><%= $status->{incomplete} // '--' %></td>
         <td><%= $status->{downloaded} // '--' %></td>
     </tr>
@@ -309,6 +311,11 @@ th.selector {
 td.selector {
 	text-align: left;
 	background-color: #FFCC33;
+}
+
+.web_seed {
+    font-size: 75%;
+    float: right;
 }
 
 p.error {
