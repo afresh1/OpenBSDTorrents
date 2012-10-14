@@ -5,6 +5,9 @@ use strict;
 use warnings;
 use diagnostics;
 
+use File::Basename qw( dirname );
+use File::Path qw( make_path );
+
 use lib 'lib';
 use OpenBSDTorrents;
 
@@ -97,8 +100,23 @@ sub Make_Torrent {
                 $torrents{$t}{name} = $renamed;
             }
             elsif ( my ($ext) = $file =~ /$SONG_REGEX/xms ) {
-                $t = Name_Torrent("$basedir/$ext");
+                my $destdir = dirname($f) . '/' . $ext;
+                $destdir =~ s{/}{_}g;
+
+                my $root     = $OBT->{DIR_FTP};
+                my $destfile = "$destdir/$file";
+
+                make_path("$root/$destdir");
+                unlink "$root/$destfile" if -e "$root/$destfile";
+                link "$root/$f", "$root/$destfile"
+                    or die "Couldn't link $root/{$f to $destfile}: $!";
+
+                $t = Name_Torrent($destdir);
+                $f = $destdir;
                 $c = "$ext files from $basedir";
+
+                $torrents{$t}{name}  = $destdir;
+                $torrents{$t}{files} = [];
             }
 
             $torrents{$t}{comment} = $c;
