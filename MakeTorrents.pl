@@ -97,7 +97,7 @@ sub Make_Torrent {
 
                 $t = Name_Torrent($renamed);
                 $c = $f;
-                $torrents{$t}{name} = $renamed;
+                $f = $renamed;
             }
             elsif ( my ($ext) = $file =~ /$SONG_REGEX/xms ) {
                 my $destdir = dirname($f) . '/' . $ext;
@@ -112,11 +112,13 @@ sub Make_Torrent {
                     or die "Couldn't link $root/{$f to $destfile}: $!";
 
                 $t = Name_Torrent($destdir);
-                $f = $destdir;
+                $f = $destfile;
                 $c = "$ext files from $basedir";
 
-                $torrents{$t}{name}  = $destdir;
-                $torrents{$t}{files} = [];
+                $torrents{$t}{dir} = $destdir;
+            }
+            else {
+                $torrents{$t}{dir} = $basedir;
             }
 
             $torrents{$t}{comment} = $c;
@@ -133,38 +135,33 @@ sub Make_Torrent {
             . ( scalar @{ $torrents{$t}{files} } )
             . " files)\n";
 
-        my $n = $torrents{$t}{name} || $OBT->{BASENAME};
-        my $c = $torrents{$t}{comment};
-        $c .= "\nCreated by andrew fresh (andrew\@afresh1.com)\n"
-            . "http://OpenBSD.somedomain.net/";
-
-        eval { btmake( $t, $n, $c, $torrents{$t}{files} ); };
-        if ($@) {
-            print "Error creating $t\n$@\n";
-        }
+        eval { btmake( $t, $torrents{$t} ); };
+        warn "Error creating $t\n$@\n" if $@;
     }
 
     return [ keys %torrents ];
 }
 
 sub btmake {
-    my $torrent = shift;
-    my $name    = shift;
-    my $comment = shift;
-    my $files   = shift;
+    my ($t, $opts) = @_;
 
+    my $source  = $opts->{dir} || $opts->{files}->[0];
+
+    my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$t";
     my $announce  = $OBT->{URL_TRACKER};
-    my $web_seed  = $OBT->{URL_WEBSEED} . $name;
+    my $web_seed  = $OBT->{URL_WEBSEED};
+    $web_seed .= $source if @{ $opts->{files} } == 1;
 
-    my $torrent_with_path = $OBT->{DIR_NEW_TORRENT} . "/$torrent";
+    my $comment = join "\n", $opts->{comment},
+        'Created by andrew fresh (andrew@afresh1.com)',
+        'http://OpenBSD.somedomain.net/';
 
     system '/usr/local/bin/mktorrent',
+        '-o', $torrent_with_path,
         '-a', $announce,
         '-w', $web_seed,
-        '-n', $name,
         '-c', $comment,
-        '-o', $torrent_with_path,
-        @{$files};
+        $source;
 
     print "Created: $torrent_with_path\n";
 }
