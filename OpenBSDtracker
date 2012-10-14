@@ -186,7 +186,7 @@ $(document).ready(function() {
 % end
 <ul>
 %= $detail_line->('Comment', $detail->{comment}) if $detail->{comment};
-%= $detail_line->('Created By', $detail->{'created by'}) if $detail->{'created by'};
+% #= $detail_line->('Created By', $detail->{'created by'}) if $detail->{'created by'};
 %= $detail_line->('Creaton Date', human_date( $detail->{'creation date'} )) if $detail->{'creation date'};
 %= $file_list->( $detail->{info} );
 %= $url_list->( $detail->{'url-list'} );
