@@ -448,6 +448,8 @@ img     {
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;_&lt;ARCH&gt;-&lt;DATE&gt;.torrent' contain the installation sets for that release and architecture.</li>
 -->
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;_&lt;ARCH&gt;_install&lt;RELEASE&gt;_iso-&lt;DATE&gt;.torrent' contain the installation disc image for that release and architecture.</li>
+<li>Torrents named 'OpenBSD_songs_&lt;FORMAT&gt;-&lt;DATE&gt;.torrent' contain
+all the OpenBSD songs in that format.</li>
 <!--
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;_packages_&lt;ARCH&gt;-&lt;DATE&gt;.torrent' contain prebuilt packages for that release and architecture.</li>
 -->
