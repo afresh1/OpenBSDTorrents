@@ -26,6 +26,11 @@ echo
 echo ${OBT_DIR_HOME}/CurrentTorrents.pl
 ${OBT_DIR_HOME}/CurrentTorrents.pl
 
+echo "Update /var/opentracker/whitelist";
+cat ${OBT_DIR_TORRENT}/allowed.txt > /var/opentracker/whitelist
+# torrentsync ALL=(_opentracker)  NOPASSWD:/usr/bin/pkill -HUP opentracker
+sudo -u _opentracker /usr/bin/pkill -HUP opentracker
+
 echo 
 echo ${OBT_DIR_HOME}/SeedTorrents.pl
 ${OBT_DIR_HOME}/SeedTorrents.pl
