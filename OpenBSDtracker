@@ -423,9 +423,9 @@ img     {
     <a href="/"><img src="/images/bsdtorrent.png" alt="OpenBSD Torrents" /></a>
     </p>
 <h1>OpenBSD Torrents 
-%= link_to url_with( format => 'xml' )->to_abs => begin
-  <span class="rsslink" style="vertical-align: top;">RSS</span>
-% end;
+% #= link_to url_with( format => 'xml' )->to_abs => begin
+% #  <span class="rsslink" style="vertical-align: top;">RSS</span>
+% # end;
 </h1>
 <h4>
   Please be sure to support the <a href="http://www.openbsd.org">OpenBSD</a>
