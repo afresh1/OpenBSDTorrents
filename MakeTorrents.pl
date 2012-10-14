@@ -61,6 +61,9 @@ sub Make_Torrent {
         die "Invalid characters in dir '$basedir'";
     }
 
+    # Only source from inside the actual baedir
+    return unless $basedir =~ /^\Q$OBT->{BASENAME}\E\//;
+
     if ( $#{$files} < $OBT->{MIN_FILES} 
       && $files->[0] !~/$INSTALL_ISO_REGEX/xms ) {
         print "Too few files in $basedir, skipping . . .\n";
