@@ -78,6 +78,7 @@ __DATA__
 @@ index.html.ep
 % layout 'default';
 % title 'OpenBSD Torrents';
+%= include 'inc/torrent_description'
 <table class="torrentlist">
   <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
 % my $torrents = torrents();
@@ -421,8 +422,10 @@ img     {
     <a href="/"><img src="/images/bsdtorrent.png" alt="OpenBSD Torrents" /></a>
     </p>
 <h1>OpenBSD Torrents 
-  <a href="/rss.php?" title="subscribe">
-  <span class="rsslink" style="vertical-align: top;">RSS</span></a></h1>
+%= link_to url_with( format => 'xml' )->to_abs => begin
+  <span class="rsslink" style="vertical-align: top;">RSS</span>
+% end;
+</h1>
 <h4>
   Please be sure to support the <a href="http://www.openbsd.org">OpenBSD</a>
   project by purchasing 
@@ -434,16 +437,23 @@ img     {
   will remain <a href="http://www.openbsd.org/policy.html">free</a>
   for everyone to use and reuse as they see fit.
 </h4>
-<p>The torrents below are generated from files mirrored from an official OpenBSD mirror.  They are named based on the <a href="http://www.openbsd.org/ftp.html#layout">Structural Layout of the FTP collection</a>.  You can see what files are in each torrent by clicking the "Details" link next to the torrent.</p>
+
+@@ inc/torrent_description.html.ep
+<p>The torrents below are generated from files mirrored from an official OpenBSD mirror.  They are named based on the <a href="http://www.openbsd.org/ftp.html#layout">Structural Layout of the FTP collection</a>.  You can see what files are in each torrent by clicking the arrow next to the torrent.</p>
 
 <ul>
+<!--
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;-&lt;DATE&gt;.torrent' contain the source for that release.  </li>
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;_&lt;ARCH&gt;-&lt;DATE&gt;.torrent' contain the installation sets for that release and architecture.</li>
+-->
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;_&lt;ARCH&gt;_install&lt;RELEASE&gt;_iso-&lt;DATE&gt;.torrent' contain the installation disc image for that release and architecture.</li>
+<!--
 <li>Torrents named 'OpenBSD_&lt;RELEASE&gt;_packages_&lt;ARCH&gt;-&lt;DATE&gt;.torrent' contain prebuilt packages for that release and architecture.</li>
+-->
 </ul>
 <p>
-Torrents are dated because they may be replaced with newer torrents from the same directory when the files in that directory change.  This often happens when new snapshots are released, as well as when <a href="http://www.openbsd.org/pkg-stable.html">new packages</a> are built to resolve security problems.
+Torrents are dated because they may be replaced with newer torrents from the same directory when the files in that directory change.  This often happens when new snapshots are released.
+% #, as well as when <a href="http://www.openbsd.org/pkg-stable.html">new packages</a> are built to resolve security problems.
 </p>
 
 <p>These are the same files that are available from the official mirrors.  Installation is the same as downloading from an official mirror.  You can learn more about installing OpenBSD from <a href="http://www.openbsd.org/faq/faq4.html">OpenBSD Installation Guide FAQ 4</a>.</p>
@@ -451,31 +461,17 @@ Torrents are dated because they may be replaced with newer torrents from the sam
 @@ inc/footer.html.ep
 <h2>Notes</h2>
 <ul>
-  <li>I now have a <a href="files">script available</a> to help keep 
-      your torrents in sync with the downloaded ones.</li>
     <li>Latest torrents are seeded locally, but I would appreciate any help in seeding.</li>
     <li>The server that generates the torrents is mirrored every 4 hours from ftp3.usa.openbsd.org</li>
-    <li>You can filter by different archectures and only certain versions. 
-    <ul>
-    <li>For example, only <a href="index.php?version=latest release&amp;version=4.4&amp;arch=i386&amp;arch=alpha&amp;seededonly=yes">latest release and 4.4 torrents for alpha and i386 that are seeded</a>.</li>
-        <li>or you can get the same information as an
-        <a href="rss.php?version=latest release&amp;version=4.4&amp;arch=i386&amp;arch=alpha&amp;seededonly=yes"
-               title="subscribe"><span class="rsslink">RSS</span></a> 
-        </li>
-        <li>or the current page as an <a href="/rss.php?"
-            title="subscribe"><span class="rsslink">RSS</span></a> 
-        </li>
-    <li>It is very possible to filter the list to be completely empty.  If you want to do that, I won't stop you, just don't complain about it.</li>
-    <li>The 'latest release' filter is something that allows you to get an rss feed for the latest release without changing the URL.  It is something that I will update manually twice a year.</li>
-    </ul>
     </li>
-<li>More information is available on <a href="http://www.openbsd.org/">OpenBSD</a> and <a href="http://www.bittorrent.com">BitTorrent</a></li>
-  <li>Logos on this site are copyright by their respective owners.</li>
-  <li>You should get the 
-    <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=sha256">SHA256</a>
-        or
-    <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=md5">MD5</a>
-     file from one of the <a href="http://www.openbsd.org/ftp.html">official mirrors</a> and check it against the files you downloaded.</li>
+    <li>More information is available on <a href="http://www.openbsd.org/">OpenBSD</a> and <a href="http://www.bittorrent.com">BitTorrent</a></li>
+    <li>Logos on this site are copyright by their respective owners.</li>
+    <li>You should get the 
+        <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=sha256">SHA256</a>
+            or
+        <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=md5">MD5</a>
+        file from one of the <a href="http://www.openbsd.org/ftp.html">official mirrors</a> and check it against the files you downloaded.
+    </li>
 </ul>
 
     <p> 
@@ -491,6 +487,22 @@ Torrents are dated because they may be replaced with newer torrents from the sam
     Copyright &copy; 2005-2012 Andrew Fresh.
     </p>
 
+@@ inc/filter_details.html.ep
+    <li>I now have a <a href="files">script available</a> to help keep 
+        your torrents in sync with the downloaded ones.</li>
+    <li>You can filter by different archectures and only certain versions. 
+    <ul>
+    <li>For example, only <a href="index.php?version=latest release&amp;version=4.4&amp;arch=i386&amp;arch=alpha&amp;seededonly=yes">latest release and 4.4 torrents for alpha and i386 that are seeded</a>.</li>
+        <li>or you can get the same information as an
+        <a href="rss.php?version=latest release&amp;version=4.4&amp;arch=i386&amp;arch=alpha&amp;seededonly=yes"
+               title="subscribe"><span class="rsslink">RSS</span></a> 
+        </li>
+        <li>or the current page as an <a href="/rss.php?"
+            title="subscribe"><span class="rsslink">RSS</span></a> 
+        </li>
+    <li>It is very possible to filter the list to be completely empty.  If you want to do that, I won't stop you, just don't complain about it.</li>
+    <li>The 'latest release' filter is something that allows you to get an rss feed for the latest release without changing the URL.  It is something that I will update manually twice a year.</li>
+    </ul>
 @@ images/bsdtorrent.png (base64)
 iVBORw0KGgoAAAANSUhEUgAAAWIAAABsCAMAAABn/0iMAAAABGdBTUEAAK/INwWK6QAAABl0RVh0
 U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABgUExURfzvhe/Vb1pskh0dG/Hx8/XifJCl
