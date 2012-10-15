@@ -86,7 +86,7 @@ __DATA__
 % title 'OpenBSD Torrents';
 %= include 'inc/torrent_description'
 <table class="torrentlist">
-  <tr><th>Torrent</th><th>Seeders</th><th>Downloaders</th><th>Downloads</th></tr>
+  <tr><th>Torrent</th><th>Seeds</th><th>Downloaders</th><th>Downloads</th></tr>
 % my $torrents = torrents();
 % my $row = 0;
 % foreach my $hash (
