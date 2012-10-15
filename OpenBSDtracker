@@ -7,6 +7,16 @@ use DateTime;
 
 my $baseurl = 'http://localhost:6969/';
 
+app->config(
+    hypnotoad => {
+        user     => '_torrentwww',
+        group    => '_torrentwww',
+        listen   => ['http://*:8081'],
+        proxy    => 1,
+        pid_file => '/var/run/OpenBSDtracker.pid'
+    }
+);
+
 helper title_case => sub {
     my ($self, $block) = @_;
 
