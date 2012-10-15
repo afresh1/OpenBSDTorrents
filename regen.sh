@@ -31,6 +31,10 @@ cat ${OBT_DIR_TORRENT}/allowed.txt > /var/opentracker/whitelist
 # torrentsync ALL=(_opentracker)  NOPASSWD:/usr/bin/pkill -HUP opentracker
 sudo -u _opentracker /usr/bin/pkill -HUP opentracker
 
+echo "Reload web server"
+# torrentsync ALL=(root)  NOPASSWD: /usr/local/bin/hypnotoad /home/OpenBSDTorrents/OpenBSDtracker
+sudo /usr/local/bin/hypnotoad /home/OpenBSDTorrents/OpenBSDtracker
+
 echo 
 echo ${OBT_DIR_HOME}/SeedTorrents.pl
 ${OBT_DIR_HOME}/SeedTorrents.pl

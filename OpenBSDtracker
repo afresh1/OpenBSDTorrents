@@ -40,7 +40,9 @@ helper torrents => sub {
     state $ot_stats = WWW::Opentracker::Stats->new(
         { 'statsurl' => $baseurl . 'stats', } );
 
-    my $torrents = app->ua->get('/torrent/torrents.json')->res->json || {};
+    state $torrents = {};
+    $torrents = app->ua->get('/torrent/torrents.json')->res->json
+        unless %{$torrents};
     my $files    = eval { $ot_stats->stats('tpbs')->{tpbs}->{files} };
     warn $@ if $@;
 
