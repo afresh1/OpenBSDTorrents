@@ -23,6 +23,7 @@ die "Couldn't get current torrents" unless $current;
 
 my $client = Transmission::Client->new;
 foreach my $torrent ( @{ $client->torrents } ) {
+    next unless $torrent->comment =~ /OpenBSD.somedomain.net/;
     my $hash = $torrent->hash_string;
 
     if ( exists $current->{$hash} ) {
