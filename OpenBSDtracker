@@ -91,6 +91,10 @@ get '/detail/:hash' => sub {
     $self->render( 'detail', layout => 'default' );
 };
 
+app->hook(after_dispatch => sub {
+    my $tx = shift;
+    $tx->res->headers->header(Vary => 'Accept-Encoding');
+});
 
 app->hook(after_static_dispatch => sub {
     my $tx = shift;
