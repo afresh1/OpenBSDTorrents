@@ -3,6 +3,7 @@ use Mojolicious::Lite;
 use Mojo::ByteStream;
 use WWW::Opentracker::Stats;
 use DateTime;
+use Mojo::Date;
 #use Convert::Bencode qw( bdecode );
 
 my $baseurl = 'http://localhost:6969/';
@@ -89,6 +90,34 @@ get '/detail/:hash' => sub {
 
     $self->render( 'detail', layout => 'default' );
 };
+
+
+app->hook(after_static_dispatch => sub {
+    my $tx = shift;
+    my $code = $tx->res->code;
+    my $type = $tx->res->headers->content_type;
+
+    # Was the response static?
+    return unless $code && ($code == 304 || $type);
+
+    # If so, remove cookies and/or caching instructions
+    $tx->res->headers->remove('Cache-Control');
+    $tx->res->headers->remove('Set-Cookie');
+
+    # Decide on an expiry date
+    my $e = Mojo::Date->new(time+(60*60*24*14));
+    if ($type) {
+        if ($type =~ /javascript/) {
+            $e = Mojo::Date->new(time+(60*60*24*30));
+        }
+        elsif ($type =~ /^text\/css/ || $type =~ /^image\//) {
+            $e = Mojo::Date->new(time+(60*60*24*7));
+            $tx->res->headers->header("Cache-Control" => "public");
+        }
+        # #other conditions#
+    }
+    $tx->res->headers->header(Expires => $e);
+});
 
 app->start;
 __DATA__
