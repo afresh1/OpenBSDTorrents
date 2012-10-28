@@ -2,7 +2,6 @@
 use Mojolicious::Lite;
 use Mojo::ByteStream;
 use WWW::Opentracker::Stats;
-use DateTime;
 use Mojo::Date;
 #use Convert::Bencode qw( bdecode );
 
@@ -42,7 +41,7 @@ helper human_number => sub {
 
 helper human_date => sub {
     my ($self, $epoch) = @_;
-    my $date = DateTime->from_epoch( epoch => $epoch );
+    my $date = Mojo::Date->new( $epoch );
     my $result = "$date";
     return Mojo::ByteStream->new($result);;
 };
