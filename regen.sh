@@ -36,5 +36,5 @@ echo "Reload web server"
 sudo /usr/local/bin/hypnotoad /home/OpenBSDTorrents/OpenBSDtracker
 
 echo 
-echo ${OBT_DIR_HOME}/SeedTorrents.pl
-${OBT_DIR_HOME}/SeedTorrents.pl
+#echo ${OBT_DIR_HOME}/SeedTorrents.pl
+#${OBT_DIR_HOME}/SeedTorrents.pl

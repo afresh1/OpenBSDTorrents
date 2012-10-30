@@ -140,12 +140,15 @@ __DATA__
 %   my $detail = $torrents->{$hash};
 %   my $status = $detail->{stats} || {};
 %   my $web_seed = '';
-%   $web_seed = t span => class => web_seed => 'Web Seed' ;
+%   $web_seed = t span => class => 'additional-detail' => 'Web Seed' ;
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr data-hash="<%= $hash %>" class="torrent <%= $row_class %>">
         <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
 % if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
+%    if ($detail->{'creation date'}) {
+	<span class="additional-detail">Created <%= human_date( $detail->{'creation date'} ) %></span>
+%    }
 % } else {
 %=      $hash
 % }
@@ -361,7 +364,7 @@ td.selector {
 	background-color: #FFCC33;
 }
 
-.web_seed {
+.additional-detail {
     font-size: 75%;
     float: right;
 }
