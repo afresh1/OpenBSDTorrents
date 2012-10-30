@@ -17,13 +17,14 @@ fi
 echo $$ > ${PIDFILE}
 
 #SERVER=rsync://ftp3.usa.openbsd.org/ftp/
-SERVER=rsync://ftp5.usa.openbsd.org/ftp/
+#SERVER=rsync://ftp5.usa.openbsd.org/ftp/
 #SERVER=rsync://openbsd.mirrors.tds.net/OpenBSD
 #SERVER=rsync://openbsd.mirror.frontiernet.net/OpenBSD
 #SERVER=rsync://mirror.rit.edu/OpenBSD/
 #SERVER=rsync://filedump.se.rit.edu/OpenBSD/
 #SERVER=rsync://mirror.planetunix.net/OpenBSD/
 #SERVER=rsync://mirror.team-cymru.org/OpenBSD/ 
+SERVER=rsync://mirrors.gigenet.com/OpenBSD/
 
 	#--dry-run \
 rsync -a \

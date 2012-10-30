@@ -529,7 +529,7 @@ Torrents are dated because they may be replaced with newer torrents from the sam
 <h2>Notes</h2>
 <ul>
     <li>Latest torrents are seeded locally, but I would appreciate any help in seeding.</li>
-    <li>The server that generates the torrents is mirrored every 4 hours from ftp3.usa.openbsd.org</li>
+    <li>The server that generates the torrents is mirrored every 4 hours from mirrors.gigenet.com</li>
     </li>
     <li>More information is available on <a href="http://www.openbsd.org/">OpenBSD</a> and <a href="http://www.bittorrent.com">BitTorrent</a></li>
     <li>Logos on this site are copyright by their respective owners.</li>
