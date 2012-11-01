@@ -140,7 +140,7 @@ __DATA__
 %   my $detail = $torrents->{$hash};
 %   my $status = $detail->{stats} || {};
 %   my $web_seed = '';
-%   $web_seed = t span => class => 'additional-detail' => 'Web Seed' ;
+%   $web_seed = t span => class => 'additional-detail' => 'Web Seed' if $detail->{'url-list'};
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr data-hash="<%= $hash %>" class="torrent <%= $row_class %>">
         <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
