@@ -109,6 +109,27 @@ app->hook( before_dispatch => sub {
     my $tx           = shift;
     my $default_file = 'index.html';
 
+    # Fix broken host/port due to b0rk3d httpd mod_proxy Host: header
+    # -- http://marc.info/?t=133254469700005&r=1&w=2
+    if ($ENV{MOJO_REVERSE_PROXY}) {
+        my $headers = $tx->req->headers;
+
+        my $host = $headers->header('X-Forwarded-Host');
+        my $port = $headers->header('X-Forwarded-Port');
+
+        $host =~ s/:(\d+)$//;
+        $port ||= $1;
+
+        my $base = $tx->req->url->base;
+        if ($host) {
+            $base->host($host);
+            $base->port($port);
+        }
+        elsif ($port) {
+            $base->port($port);
+        }
+    }
+
     # Canonical path
     my $stash = $tx->stash;
     my $rel = $stash->{path} || $tx->req->url->path->clone->canonicalize;
