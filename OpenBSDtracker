@@ -19,6 +19,12 @@ app->config(
     }
 );
 
+app->defaults(
+    title       => 'OpenBSD Torrents',
+    description => 'OpenBSD Torrents from openbsd.somedomain.net',
+    url         => '/',
+);
+
 helper title_case => sub {
     my ($self, $block) = @_;
 
@@ -72,14 +78,15 @@ plugin 'PODRenderer' if app->mode eq 'development';
 
 #my $torrents = plugin 'JSONConfig' => { file => 'torrents.json' };
 
-get '/' => sub { shift->render('index') };
-get '/torrents' => sub { 
+get '/' => 'index';
+get '/torrents' => sub {
     my $self = shift;
 
     $self->respond_to(
         json => { json => $self->torrents },
+        xml  => { template => 'index' },
         html => { template => 'index' },
-    ) 
+    )
 };
 
 get '/detail/:hash' => sub {
@@ -215,6 +222,28 @@ $(document).ready(function() {
 });
 % end
 
+@@ index.xml.ep
+% my $torrents = torrents();
+% my $pubDate = 0;
+% foreach my $hash (
+%     sort { $torrents->{$a}->{'creation date'}
+%        <=> $torrents->{$b}->{'creation date'} } keys %{$torrents} )
+% {
+%   my $detail = $torrents->{$hash};
+%   next unless $detail->{torrent};
+%   my $item_pub_date = $detail->{'creation date'};
+%   $pubDate = $item_pub_date if $pubDate < $item_pub_date;
+    <item>
+        <title><%= $detail->{info}->{name} %></title>
+        <link><%= url_for( "torrent/$detail->{torrent}" )->to_abs %></link>
+        <description><%= $detail->{comment} %></description>
+        <guid><%= $detail->{torrent} %></guid>
+        <pubDate><%= human_date $item_pub_date %></pubDate>
+    </item>
+% }
+% layout 'default', pubDate => human_number $pubDate;
+
+
 @@ detail.html.ep
 % title 'OpenBSD Torrent Details';
 % my $detail_line = begin
@@ -283,6 +312,20 @@ $(document).ready(function() {
 %= include 'inc/footer'
   </body>
 </html>
+
+@@ layouts/default.xml.ep
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title><%= $title %></title>
+    <description><%= $description %></description>
+    <link><%= url_for( $url )->to_abs %></link>
+    <lastBuildDate><%= human_date time %></lastBuildDate>
+    <pubDate><%= human_date $pubDate %></pubDate>
+    <ttl>1800</ttl>
+%= content
+</channel>
+</rss>
 
 @@ inc/style.css.ep
 body {
