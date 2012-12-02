@@ -101,7 +101,7 @@ app->hook( before_dispatch => sub {
     my $rel = $stash->{path} || $tx->req->url->path->clone->canonicalize;
 
     # Append the default file (that I want) if there is a trailing /
-    $rel .= $default_file if substr( $rel, -1 ) eq '/';
+    $rel .= $default_file if $tx->req->url->path->trailing_slash;
 
     for my $path ( @{ app->static->paths } ) {
         my $file = catfile $path, split( '/', $rel );
