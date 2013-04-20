@@ -333,6 +333,9 @@ $(document).ready(function() {
 %=   include 'inc/style', format => 'css';
 %  end
 %= javascript '/js/jquery.js';
+%= javascript begin
+%= include 'inc/pingdom', format => 'js';
+%  end
   </head>
   <body>
 %= include 'inc/header'
@@ -354,6 +357,17 @@ $(document).ready(function() {
 %= content
 </channel>
 </rss>
+
+@@ inc/pingdom.js.ep
+var _prum = [['id', '5172ff35abe53d4c59000000'],
+             ['mark', 'firstbyte', (new Date()).getTime()]];
+(function() {
+    var s = document.getElementsByTagName('script')[0]
+      , p = document.createElement('script');
+    p.async = 'async';
+    p.src = '//rum-static.pingdom.net/prum.min.js';
+    s.parentNode.insertBefore(p, s);
+})();
 
 @@ inc/style.css.ep
 body {
