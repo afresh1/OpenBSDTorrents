@@ -205,6 +205,10 @@ __DATA__
 %   my $row_class = $row % 2 ? 'odd' : 'even';
      <tr data-hash="<%= $hash %>" class="torrent <%= $row_class %>">
         <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
+        <span class='magnet-link'>
+%         my $magnet_link = 'magnet:?xt=urn:btih:' . $hash . '&dn=' .  $detail->{info}->{name};
+%=        link_to $magnet_link => begin %><%= image 'magnet.png' %><% end
+        </span>
 % if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
 %    if ($detail->{'creation date'}) {
@@ -516,6 +520,10 @@ img     {
 	border-color: #FC9 #630 #330 #F96;
 	padding:0px 3px 0px 3px;
 	margin:0px;
+}
+
+.magnet-link {
+	padding:0px 3px 0px 3px;
 }
 
 .arrow-right {
