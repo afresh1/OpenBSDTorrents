@@ -23,9 +23,9 @@ echo $$ > ${PIDFILE}
 #SERVER=rsync://mirror.rit.edu/OpenBSD/
 #SERVER=rsync://filedump.se.rit.edu/OpenBSD/
 #SERVER=rsync://mirror.planetunix.net/OpenBSD/
-#SERVER=rsync://mirror.team-cymru.org/OpenBSD/ 
+SERVER=rsync://mirror.team-cymru.org/OpenBSD/ 
 #SERVER=rsync://mirrors.gigenet.com/OpenBSD/
-SERVER=rsync://mirror.jmu.edu/OpenBSD/
+#SERVER=rsync://mirror.jmu.edu/OpenBSD/
 
 	#--dry-run \
 rsync -a \
