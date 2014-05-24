@@ -3,6 +3,7 @@ use Mojolicious::Lite;
 use Mojo::ByteStream;
 use WWW::Opentracker::Stats;
 use Mojo::Date;
+use Mojo::Util;
 #use Convert::Bencode qw( bdecode );
 
 use File::Spec::Functions 'catfile';
@@ -207,7 +208,7 @@ __DATA__
         <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
         <span class='magnet-link'>
 %         my $magnet_link = 'magnet:?xt=urn:btih:' . $hash . '&dn=' .  $detail->{info}->{name};
-%=        link_to $magnet_link => begin %><%= image 'magnet.png' %><% end
+%=        link_to url_unescape $magnet_link => begin %><%= image 'magnet.png' %><% end
         </span>
 % if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
