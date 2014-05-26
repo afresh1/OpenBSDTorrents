@@ -206,8 +206,8 @@ __DATA__
      <tr data-hash="<%= $hash %>" class="torrent <%= $row_class %>">
         <td><div class="detail_expander <%= $hash %>" style="float:left"></div>
         <span class='magnet-link'>
-%         my $magnet_link = 'magnet:?xt=urn:btih:' . $hash . '&dn=' .  $detail->{info}->{name};
-%=        link_to $magnet_link => begin %><%= image 'magnet.png' %><% end
+%         my $magnet_link = 'magnet:?xt=urn:btih:' . $hash . '&amp;dn=' .  $detail->{info}->{name};
+          <a href="<%== $magnet_link %>"><%= image 'magnet.png' %></a>
         </span>
 % if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
