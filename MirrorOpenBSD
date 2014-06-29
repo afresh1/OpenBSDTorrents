@@ -34,13 +34,18 @@ rsync -a \
 	--verbose --log-format="%t [%p] %o %f %l" \
 	-f "include /5.[0123456789]/" \
 	-f "include /5.[0123456789]/*/" \
-	-f "include /5.3/i386/install*.iso" \
-	-f "include /5.3/amd64/install*.iso" \
-	-f "include /5.[456789]/*/install*.iso" \
+	-f "include /5.4/i386/install*.iso" \
+	-f "include /5.4/i386/install*.fs" \
+	-f "include /5.4/amd64/install*.iso" \
+	-f "include /5.4/amd64/install*.fs" \
+	-f "include /5.[56789]/*/install*.iso" \
+	-f "include /5.[56789]/*/install*.fs" \
 	-f "include /snapshots/" \
 	-f "include /snapshots/*/" \
 	-f "include /snapshots/i386/install*.iso" \
+	-f "include /snapshots/i386/install*.fs" \
 	-f "include /snapshots/amd64/install*.iso" \
+	-f "include /snapshots/amd64/install*.fs" \
 	-f "include /songs/" \
 	-f "include /songs/*" \
 	-f "exclude **" \
