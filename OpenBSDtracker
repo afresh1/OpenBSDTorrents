@@ -336,7 +336,7 @@ $(document).ready(function() {
 %= stylesheet begin
 %=   include 'inc/style', format => 'css';
 %  end
-%= javascript '/js/jquery.js';
+%= javascript '/mojo/jquery/jquery.js';
 %= javascript begin
 %= include 'inc/pingdom', format => 'js';
 %  end
