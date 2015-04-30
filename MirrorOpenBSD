@@ -36,12 +36,12 @@ rsync -a \
 	--verbose --log-format="%t [%p] %o %f %l" \
 	-f "include /5.[0123456789]/" \
 	-f "include /5.[0123456789]/*/" \
-	-f "include /5.5/i386/install*.iso" \
-	-f "include /5.5/i386/install*.fs" \
-	-f "include /5.5/amd64/install*.iso" \
-	-f "include /5.5/amd64/install*.fs" \
-	-f "include /5.[6789]/*/install*.iso" \
-	-f "include /5.[6789]/*/install*.fs" \
+	-f "include /5.6/i386/install*.iso" \
+	-f "include /5.6/i386/install*.fs" \
+	-f "include /5.6/amd64/install*.iso" \
+	-f "include /5.6/amd64/install*.fs" \
+	-f "include /5.[789]/*/install*.iso" \
+	-f "include /5.[789]/*/install*.fs" \
 	-f "include /snapshots/" \
 	-f "include /snapshots/*/" \
 	-f "include /snapshots/i386/install*.iso" \
