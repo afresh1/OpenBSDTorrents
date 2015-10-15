@@ -8,7 +8,7 @@ use Time::Local;
 use Fcntl ':flock';
 use File::Basename;
 use File::Copy qw( move );
-use Mojo::JSON;
+use Mojo::JSON qw( encode_json );
 
 #use YAML;
 
@@ -223,7 +223,7 @@ foreach my $hash ( keys %keep ) {
 }
 
 open my $fh, '>', $json_tmp or die "Couldn't open file $json_tmp: $!";
-print $fh Mojo::JSON->new->encode( \%current );
+print $fh encode_json( \%current );
 close $fh;
 
 rename $allowed_tmp, $allowed_file or die "Couldn't rename $allowed_file: $!";
