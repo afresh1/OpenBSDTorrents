@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/env plackup
 use Mojolicious::Lite;
 use Mojo::ByteStream;
 use WWW::Opentracker::Stats;
