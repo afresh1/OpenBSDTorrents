@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. /etc/OpenBSDTorrents.conf
+cd $OBT_DIR_FTP/$OBT_BASENAME 
+
+mount_point=`df . | tail -1 | sed -e 's/.* //'`
+while true; do
+    inum=""
+    for i in `fstat -u torrentsync -f $mount_point | cut -c 40-49 | grep -v INUM`; do
+        [ -n "$inum" ] && inum="$inum -o"
+	inum="$inum -inum $i"
+    done
+    [ -n "$inum" ] && find . -type f \( $inum \) -ls
+
+    sleep 10;
+done
