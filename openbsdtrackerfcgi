@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# $OpenBSD$
+
+daemon="/home/OpenBSDTorrents/OpenBSDtracker"
+daemon_flags="-E production -nproc 5 --daemonize \
+	-s FCGI --listen /var/www/run/openbsdtracker.sock \
+	--proc-title openbsdtracker-fcgi-pm"
+
+. /etc/rc.d/rc.subr
+
+pexp="perl: openbsdtracker-fcgi-pm"
+cd /home/OpenBSDTorrents
+
+rc_cmd $1
