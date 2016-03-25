@@ -194,6 +194,7 @@ __DATA__
   <tr><th>Torrent</th><th>Seeds</th><th>Downloaders</th><th>Downloads</th></tr>
 % my $torrents = torrents();
 % my $row = 0;
+% my $last_update = 0;
 % foreach my $hash (
 %     sort { $torrents->{$a}->{torrent} cmp $torrents->{$b}->{torrent} }
 %     keys %{$torrents} )
@@ -212,6 +213,7 @@ __DATA__
 % if ($detail->{info}->{name}) {
 %=      link_to $detail->{info}->{name} => "torrent/$detail->{torrent}"
 %    if ($detail->{'creation date'}) {
+%       $last_update = $detail->{'creation date'} if $last_update < $detail->{'creation date'};
 	<span class="additional-detail">Created <%= human_date( $detail->{'creation date'} ) %></span>
 %    }
 % } else {
@@ -230,6 +232,8 @@ __DATA__
 %   $row++;
 % }
 </table>
+% my $ago = int( (time - $last_update) / 86400 );
+<!-- Last Update <%= $ago ? "$ago Days" : "OK" %> -->
 %= javascript begin
 $('.detail_expander').click(function ( event ) {
     var hash = $(this).closest('tr').attr('data-hash');
