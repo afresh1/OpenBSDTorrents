@@ -28,12 +28,14 @@ ${OBT_DIR_HOME}/CurrentTorrents.pl
 
 echo "Update /var/opentracker/whitelist";
 cat ${OBT_DIR_TORRENT}/allowed.txt > /var/opentracker/whitelist
-# torrentsync ALL=(_opentracker)  NOPASSWD:/usr/bin/pkill -HUP opentracker
-sudo -u _opentracker /usr/bin/pkill -HUP opentracker
+# permit nopass torrentsync as _opentracker cmd /usr/bin/pkill args -HUP opentracker
+doas -u _opentracker /usr/bin/pkill -HUP opentracker
 
 echo "Reload web server"
-# torrentsync ALL=(root)  NOPASSWD: /usr/local/bin/hypnotoad /home/OpenBSDTorrents/OpenBSDtracker
-sudo /usr/local/bin/hypnotoad /home/OpenBSDTorrents/OpenBSDtracker
+# permit nopass torrentsync as root cmd  /usr/bin/pkill args -HUP -f openbsdtracker-fcgi-pm
+doas /usr/bin/pkill -HUP -f openbsdtracker-fcgi-pm
+# permit nopass torrentsync as root cmd  /usr/local/bin/hypnotoad args /home/OpenBSDTorrents/OpenBSDtracker
+#doas /usr/local/bin/hypnotoad /home/OpenBSDTorrents/OpenBSDtracker
 
 echo 
 #echo ${OBT_DIR_HOME}/SeedTorrents.pl
