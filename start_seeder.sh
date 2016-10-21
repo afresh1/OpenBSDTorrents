@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo -u _torrentseeder tmux new-session -d 'rtorrent \
+doas -u _torrentseeder tmux new-session -d 'rtorrent \
 	-d /var/www/ftp/pub/ \
 	-s /var/torrentseeder/ \
 	-o dht=on,upload_rate=4096 \
