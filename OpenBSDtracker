@@ -33,6 +33,22 @@ helper title_case => sub {
     return Mojo::ByteStream->new($result);;
 };
 
+helper mirror => sub {
+    state $mirror;
+
+    unless ($mirror) {
+        open my $fh, '<', 'MirrorOpenBSD'
+            or die "Unable to open Mirror script";
+        while ( my $line = readline $fh ) {
+            if ( $line =~ m{^SERVER=.*://([^/]+)/} ) {
+                $mirror = $1;
+            }
+        }
+    }
+
+    return $mirror;
+};
+
 helper human_number => sub {
     my ($self, $number) = @_;
     $number //= 0;
@@ -653,7 +669,7 @@ Torrents are dated because they may be replaced with newer torrents from the sam
 <h2>Notes</h2>
 <ul>
     <li>Latest torrents are seeded locally, but I would appreciate any help in seeding.</li>
-    <li>The server that generates the torrents is mirrored every 4 hours from mirrors.gigenet.com</li>
+    <li>The server that generates the torrents is mirrored every 4 hours from <%= mirror %>.</li>
     </li>
     <li>More information is available on <a href="http://www.openbsd.org/">OpenBSD</a> and <a href="http://www.bittorrent.com">BitTorrent</a></li>
     <li>Logos on this site are copyright by their respective owners.</li>
