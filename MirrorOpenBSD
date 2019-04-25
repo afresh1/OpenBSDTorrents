@@ -39,16 +39,12 @@ rsync -a \
 	--verbose --log-format="%t [%p] %o %f %l" \
 	-f "include /[23456789].[0123456789]/" \
 	-f "include /[23456789].[0123456789]/*/" \
-	-f "include /5.8/i386/install*.iso" \
-	-f "include /5.8/i386/install*.fs" \
-	-f "include /5.8/amd64/install*.iso" \
-	-f "include /5.8/amd64/install*.fs" \
-	-f "include /5.9/*/install*.iso" \
-	-f "include /5.9/*/install*.fs" \
-	-f "include /6.[0123456789]/*/install*.iso" \
-	-f "include /6.[0123456789]/*/install*.fs" \
-	-f "include /7.[0123456789]/*/install*.iso" \
-	-f "include /7.[0123456789]/*/install*.fs" \
+	-f "include /6.4/i386/install*.iso" \
+	-f "include /6.4/i386/install*.fs" \
+	-f "include /6.[56789]/*/install*.iso" \
+	-f "include /6.[56789]/*/install*.fs" \
+	-f "include /7.[123456789]/*/install*.iso" \
+	-f "include /7.[123456789]/*/install*.fs" \
 	-f "include /snapshots/" \
 	-f "include /snapshots/*/" \
 	-f "include /snapshots/i386/install*.iso" \
