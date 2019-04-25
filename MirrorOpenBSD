@@ -25,13 +25,14 @@ echo $$ > ${PIDFILE}
 #SERVER=rsync://mirror.planetunix.net/OpenBSD/
 #SERVER=rsync://mirror.team-cymru.org/OpenBSD/ 
 #SERVER=rsync://mirrors.gigenet.com/OpenBSD/
-#SERVER=rsync://mirror.jmu.edu/OpenBSD/
 #SERVER=rsync://mirrors.nycbug.org/OpenBSD/ 
-SERVER=rsync://openbsd.cs.toronto.edu/openbsd/
 #SERVER=rsync://openbsd.mirrorcatalogs.com/openbsd/
 #SERVER=rsync://mirror.esc7.net/openbsd/
 
-	#--dry-run \
+#SERVER=rsync://mirror.jmu.edu/OpenBSD/
+SERVER=rsync://openbsd.cs.toronto.edu/openbsd/
+
+#	--dry-run \
 rsync -a \
 	--delete \
 	--delete-excluded \
