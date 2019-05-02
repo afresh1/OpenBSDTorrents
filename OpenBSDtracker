@@ -5,7 +5,7 @@ use WWW::Opentracker::Stats;
 use Mojo::Date;
 #use Convert::Bencode qw( bdecode );
 
-use File::Spec::Functions 'catfile';
+use File::Spec::Functions qw( splitdir catfile );
 
 my $baseurl = 'http://localhost:6969/';
 
@@ -37,7 +37,9 @@ helper mirror => sub {
     state $mirror;
 
     unless ($mirror) {
-        open my $fh, '<', 'MirrorOpenBSD'
+        my @dirs = splitdir __FILE__;
+        pop @dirs;
+        open my $fh, '<', catfile( @dirs, 'MirrorOpenBSD' )
             or die "Unable to open Mirror script";
         while ( my $line = readline $fh ) {
             if ( $line =~ m{^SERVER=.*://([^/]+)/} ) {
@@ -154,7 +156,7 @@ app->hook( before_dispatch => sub {
     $rel .= $default_file if $tx->req->url->path->trailing_slash;
 
     for my $path ( @{ app->static->paths } ) {
-        my $file = catfile $path, split( '/', $rel );
+        my $file = catfile $path, splitdir $rel;
         if ( -d $file ) {
             next unless -e catfile $file, $default_file;   # no file disclsure
             $tx->redirect_to("$rel/");
