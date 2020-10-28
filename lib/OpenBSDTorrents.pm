@@ -21,7 +21,7 @@ our @EXPORT = qw(
 
 my $config_file = '/etc/OpenBSDTorrents.conf';
 our $OBT = Config();
-our $INSTALL_ISO_REGEX = qr/ \b install\d+\.(?:iso|fs) \b /xms;
+our $INSTALL_ISO_REGEX = qr/ \b install\d+\.(?:iso|img|fs) \b /xms;
 our $SONG_REGEX        = qr/^song.*\.([^\.]+)$/xms;
 
 sub Config
