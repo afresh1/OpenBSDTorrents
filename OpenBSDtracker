@@ -97,9 +97,6 @@ helper rss_url => sub {
     return $self->url_with( $url, format => 'xml' )->to_abs;
 };
 
-# Documentation browser under "/perldoc"
-plugin 'PODRenderer' if app->mode eq 'development';
-
 #my $torrents = plugin 'JSONConfig' => { file => 'torrents.json' };
 
 get '/' => 'index';
