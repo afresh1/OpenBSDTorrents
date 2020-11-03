@@ -121,7 +121,7 @@ EPOCH: foreach my $epoch ( sort { $b <=> $a } keys %{$cn} ) {
 
         $ct->{comment} = $t->{comment} || q{};
         my ($path) = $ct->{comment} =~ /($OBT->{BASENAME}\/[^\n]+)\n/s || '';
-        if (!$path && $name =~ /(.*\.iso|img|fs)/) {
+        if (!$path && $name =~ /(.*\.(?:iso|img|fs))/) {
             $path = $1;
         }
 
